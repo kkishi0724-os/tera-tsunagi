@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>テラつなぎ｜お寺でお手伝いを探す</title>
+<style>
+  /* ===== TOKENS（共通デザインシステム） ===== */
+  :root{
+    color-scheme:light dark;
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;--matcha-deep:#414a2c;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;--matcha-deep:#c3cf9f;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}}
+  :root[data-theme="light"]{
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;--matcha-deep:#414a2c;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);}
+  :root[data-theme="dark"]{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;--matcha-deep:#c3cf9f;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--washi);color:var(--sumi);font-family:var(--sans);
+    font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  header.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--washi) 92%,transparent);
+    backdrop-filter:saturate(1.1) blur(8px);border-bottom:1px solid var(--line);}
+  .top-inner{max-width:1180px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:12px;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .seal{width:38px;height:38px;border-radius:10px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%,var(--shu),var(--shu-ink));
+    display:grid;place-items:center;color:#fbf3ea;font-family:var(--serif);font-size:20px;}
+  .brand-name{font-family:var(--serif);font-size:19px;letter-spacing:.04em;line-height:1;}
+  .brand-sub{font-size:11px;color:var(--sumi-faint);letter-spacing:.1em;}
+  .top-spacer{flex:1;}
+  .who{display:flex;align-items:center;gap:9px;}
+  .who .av{width:38px;height:38px;border-radius:50%;flex:none;background:linear-gradient(150deg,var(--shu),var(--shu-ink));
+    color:#fbf3ea;display:grid;place-items:center;font-family:var(--serif);font-size:16px;}
+  .who .nm{font-size:13px;line-height:1.2;} .who .rl{font-size:11px;color:var(--sumi-faint);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 80px;}
+  .hero{padding:30px 0 20px;}
+  .hero h1{font-family:var(--serif);font-size:30px;letter-spacing:.02em;}
+  .hero h1 .shu{color:var(--shu-ink);}
+  .hero p{margin:8px 0 0;color:var(--sumi-soft);font-size:15.5px;}
+  .searchbar{margin-top:20px;display:flex;gap:10px;align-items:center;background:var(--card);
+    border:1.5px solid var(--line);border-radius:14px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);}
+  .searchbar .mag{font-size:19px;color:var(--sumi-faint);}
+  .searchbar input{flex:1;border:0;background:none;font-family:var(--sans);font-size:16px;color:var(--sumi);padding:12px 4px;}
+  .searchbar input:focus{outline:none;}
+  .searchbar .go{border:0;cursor:pointer;background:linear-gradient(135deg,var(--shu),var(--shu-ink));
+    color:#fbf3ea;font-family:var(--sans);font-size:15px;font-weight:600;padding:12px 22px;border-radius:10px;}
+
+  .filters{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
+  .filt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .filt-lab{font-size:12.5px;color:var(--sumi-faint);width:60px;flex:none;}
+  .chip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14px;padding:8px 14px;
+    border-radius:18px;border:1.5px solid var(--line);background:var(--card);color:var(--sumi-soft);}
+  .chip:hover{border-color:var(--shu);color:var(--shu-ink);}
+  .chip[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-bg);color:var(--shu-ink);font-weight:600;}
+
+  .result-h{margin:24px 0 14px;display:flex;align-items:baseline;gap:10px;}
+  .result-h .n{font-family:var(--serif);font-size:19px;} .result-h .c{font-size:14px;color:var(--sumi-faint);}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .gig-card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:.18s;}
+  .gig-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+  .gc-hero{height:104px;display:grid;place-items:center;font-size:44px;position:relative;
+    background:linear-gradient(135deg,var(--shu-bg),var(--washi-2));}
+  .gc-hero .cat{position:absolute;top:11px;left:11px;background:var(--card);color:var(--shu-ink);
+    font-size:12px;font-weight:600;padding:4px 11px;border-radius:14px;box-shadow:var(--shadow);}
+  .gc-hero .pay{position:absolute;bottom:11px;right:11px;background:var(--shu);color:#fbf3ea;
+    font-size:13.5px;font-weight:700;padding:5px 12px;border-radius:12px;font-variant-numeric:tabular-nums;}
+  .gc-body{padding:15px 16px 17px;display:flex;flex-direction:column;flex:1;}
+  .gc-temple{font-size:12.5px;color:var(--sumi-faint);}
+  .gc-title{font-family:var(--serif);font-size:18px;margin-top:2px;line-height:1.35;}
+  .gc-when{margin-top:10px;font-size:13.5px;color:var(--sumi-soft);display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums;}
+  .gc-when .i{color:var(--shu-ink);}
+  .gc-tags{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px;flex:1;align-content:flex-start;}
+  .gc-tag{font-size:11.5px;background:var(--washi-2);color:var(--sumi-faint);padding:3px 9px;border-radius:12px;}
+  .gc-tag.hot{background:var(--matcha-bg);color:var(--matcha-ink);}
+  .gc-foot{margin-top:14px;display:flex;align-items:center;gap:10px;}
+  .gc-cap{font-size:13px;color:var(--sumi-soft);flex:1;}
+  .apply{border:0;cursor:pointer;background:var(--shu);color:#fbf3ea;font-family:var(--sans);
+    font-size:14.5px;font-weight:600;padding:10px 18px;border-radius:10px;}
+  .apply:hover{filter:brightness(1.05);}
+  .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--sumi-faint);}
+
+  /* apply panel */
+  .scrim{position:fixed;inset:0;z-index:60;background:rgba(20,18,14,.42);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity .25s;}
+  .scrim.open{opacity:1;pointer-events:auto;}
+  .panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);z-index:61;background:var(--washi);
+    box-shadow:var(--shadow-lg);transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;}
+  .panel.open{transform:none;}
+  .pn-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:var(--card);}
+  .pn-head .t{font-family:var(--serif);font-size:19px;}
+  .pn-close{margin-left:auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card);cursor:pointer;color:var(--sumi-soft);font-size:18px;}
+  .pn-close:hover{border-color:var(--off);color:var(--off);}
+  .pn-body{flex:1;overflow-y:auto;padding:20px;}
+  .gig-summary{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;padding:15px 16px;margin-bottom:22px;}
+  .gs-top{display:flex;gap:13px;align-items:center;}
+  .gs-em{width:48px;height:48px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:25px;background:var(--shu-bg);}
+  .gs-tp{font-size:12px;color:var(--sumi-faint);} .gs-nm{font-family:var(--serif);font-size:17px;margin-top:1px;}
+  .gs-meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);}
+  .gs-mi{font-size:13.5px;color:var(--sumi-soft);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;}
+  .gs-mi b{color:var(--sumi);} .gs-mi .i{color:var(--shu-ink);}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:15px;font-weight:600;margin-bottom:7px;}
+  .req{color:var(--shu-ink);font-size:12px;margin-left:6px;font-weight:600;}
+  .opt{color:var(--sumi-faint);font-size:12px;margin-left:6px;font-weight:400;}
+  textarea,input[type=text]{width:100%;font-family:var(--sans);font-size:16px;color:var(--sumi);
+    background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;}
+  textarea:focus,input:focus{outline:none;border-color:var(--shu);}
+  textarea{min-height:96px;resize:vertical;line-height:1.6;}
+  .slotpick{display:flex;flex-direction:column;gap:8px;}
+  .slotopt{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:11px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--card);font-size:15px;font-variant-numeric:tabular-nums;}
+  .slotopt:hover{border-color:var(--shu);}
+  .slotopt[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-bg);font-weight:600;}
+  .slotopt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative;}
+  .slotopt[aria-pressed="true"] .rd{border-color:var(--shu);}
+  .slotopt[aria-pressed="true"] .rd::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--shu);}
+  .fixed-slot{padding:12px 14px;border-radius:11px;background:var(--shu-bg);color:var(--shu-ink);font-weight:600;
+    font-size:15px;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:9px;}
+
+  .pn-foot{border-top:1px solid var(--line);padding:14px 20px;background:var(--card);display:flex;gap:12px;align-items:center;}
+  .pn-foot .note{font-size:12px;color:var(--sumi-faint);flex:1;}
+  .submit{border:0;cursor:pointer;background:linear-gradient(135deg,var(--shu),var(--shu-ink));color:#fbf3ea;
+    font-family:var(--sans);font-size:16px;font-weight:600;padding:13px 26px;border-radius:11px;box-shadow:var(--shadow);}
+  .submit:hover{filter:brightness(1.05);} .submit[disabled]{opacity:.5;cursor:not-allowed;}
+
+  .done-overlay{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--washi) 82%,transparent);
+    backdrop-filter:blur(4px);display:grid;place-items:center;padding:22px;}
+  .done-overlay[hidden]{display:none;}
+  .done-box{background:var(--card);border:1px solid var(--line-soft);border-radius:18px;box-shadow:var(--shadow-lg);
+    padding:38px 34px;max-width:440px;text-align:center;animation:pop .35s ease;}
+  .done-box .seal-ok{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    background:var(--shu);color:#fbf3ea;font-size:38px;}
+  .done-box h2{font-family:var(--serif);font-size:23px;margin-bottom:10px;}
+  .done-box p{color:var(--sumi-soft);font-size:15px;line-height:1.7;margin:0 0 22px;}
+  .done-box .submit{width:100%;}
+  @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+  :focus-visible{outline:3px solid var(--kincha);outline-offset:2px;border-radius:6px;}
+
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){
+    .grid{grid-template-columns:1fr;}
+    .brand-sub,.who .nm,.who .rl{display:none;}
+    .hero h1{font-size:25px;} .filt-lab{width:100%;}
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><div class="seal">寺</div>
+      <div><div class="brand-name">テラつなぎ</div><div class="brand-sub">お寺でお手伝いを探す</div></div></div>
+    <div class="top-spacer"></div>
+    <div class="who"><div class="av">佐</div>
+      <div><div class="nm">佐藤 律</div><div class="rl">学生・関西大学2年</div></div></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>お寺で、はたらく。<span class="shu">スキマ時間で貢献。</span></h1>
+    <p>境内清掃、お祭りの手伝い、受付、SNS投稿——。お寺専用の単発バイトを見つけて、その場で応募できます。</p>
+    <div class="searchbar">
+      <span class="mag">🔍</span>
+      <input type="text" id="q" placeholder="キーワードで探す（例：清掃、受付、朝、土日、未経験）" oninput="applyFilters()">
+      <button class="go" onclick="applyFilters()">さがす</button>
+    </div>
+    <div class="filters">
+      <div class="filt-row">
+        <span class="filt-lab">仕事の種類</span>
+        <button class="chip" aria-pressed="true" data-f="cat" data-v="all" onclick="setFilter(this)">すべて</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="清掃" onclick="setFilter(this)">清掃・庭仕事</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="祭り" onclick="setFilter(this)">祭り・イベント</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="受付" onclick="setFilter(this)">受付・法要</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="SNS" onclick="setFilter(this)">SNS・撮影</button>
+      </div>
+      <div class="filt-row">
+        <span class="filt-lab">働き方</span>
+        <button class="chip" aria-pressed="true" data-f="work" data-v="all" onclick="setFilter(this)">すべて</button>
+        <button class="chip" aria-pressed="false" data-f="work" data-v="単発" onclick="setFilter(this)">単発</button>
+        <button class="chip" aria-pressed="false" data-f="work" data-v="土日" onclick="setFilter(this)">土日</button>
+        <button class="chip" aria-pressed="false" data-f="work" data-v="平日" onclick="setFilter(this)">平日</button>
+        <button class="chip" aria-pressed="false" data-f="work" data-v="早朝" onclick="setFilter(this)">早朝</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-h"><span class="n">募集中のお手伝い</span><span class="c" id="rc">6件</span></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- apply panel -->
+<div class="scrim" id="scrim" onclick="closePanel()"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="pn-head"><span class="t">このお手伝いに応募する</span>
+    <button class="pn-close" onclick="closePanel()" aria-label="閉じる">✕</button></div>
+  <div class="pn-body">
+    <div class="gig-summary">
+      <div class="gs-top"><div class="gs-em" id="gs-em">🧹</div>
+        <div><div class="gs-tp" id="gs-temple">妙覚寺</div><div class="gs-nm" id="gs-name">境内の落ち葉清掃</div></div></div>
+      <div class="gs-meta">
+        <span class="gs-mi"><span class="i">🗓</span><b id="gs-when">9/6(土) 8:00–11:00</b></span>
+        <span class="gs-mi"><span class="i">💴</span><b id="gs-pay">時給1,200円</b></span>
+        <span class="gs-mi"><span class="i">👥</span><span id="gs-cap">募集2名</span></span>
+      </div>
+    </div>
+
+    <div class="field" id="slot-field" hidden>
+      <label>参加できる日<span class="req">必須</span></label>
+      <div class="slotpick" id="slots"></div>
+    </div>
+    <div class="field" id="fixed-field">
+      <label>お手伝いの日時</label>
+      <div class="fixed-slot" id="fixed-slot">🗓 9/6(土) 8:00–11:00</div>
+    </div>
+    <div class="field">
+      <label for="pr">自己紹介・意気込み<span class="req">必須</span></label>
+      <textarea id="pr" placeholder="学年・経験・お寺で手伝いたい理由などを書くと、お寺が安心して選べます。（例：朝が得意で体力に自信があります）" oninput="valForm()"></textarea>
+    </div>
+    <div class="field" style="margin-bottom:4px">
+      <label for="note">連絡・質問<span class="opt">任意</span></label>
+      <input type="text" id="note" placeholder="例）交通手段や持ち物について質問があります">
+    </div>
+  </div>
+  <div class="pn-foot">
+    <span class="note">応募すると、お寺と運営に届きます。採用や日程の連絡はマイページで受け取れます。</span>
+    <button class="submit" id="submit" onclick="submitApp()" disabled>応募する</button>
+  </div>
+</aside>
+
+<div class="done-overlay" id="done" hidden>
+  <div class="done-box">
+    <div class="seal-ok">✓</div>
+    <h2>応募を送信しました</h2>
+    <p id="done-msg">お寺と運営に応募が届きました。採用や日程の連絡は、マイページの「やりとり」で受け取れます。</p>
+    <button class="submit" onclick="resetAll()">一覧に戻る</button>
+  </div>
+</div>
+
+<script>
+  const GIGS=[
+    {id:1,temple:'妙覚寺',title:'境内の落ち葉清掃',em:'🧹',cat:'清掃',work:['単発','土日','早朝'],
+     when:'9/6(土) 8:00–11:00',slots:['9/6(土) 8:00–11:00'],pay:'時給1,200円',cap:2,
+     tags:[['未経験OK','hot'],['朝活',''],['道具貸与','']]},
+    {id:2,temple:'妙覚寺',title:'秋祭りの設営・受付補助',em:'🏮',cat:'祭り',work:['単発','土日'],
+     when:'9/23(祝) 9:00–16:00',slots:['9/23(祝) 9:00–16:00'],pay:'日給8,000円',cap:5,
+     tags:[['学生歓迎','hot'],['まかないあり','hot'],['友達と応募OK','']]},
+    {id:3,temple:'長楽寺',title:'法要の受付・お茶出し',em:'🍵',cat:'受付',work:['単発','平日'],
+     when:'8/28(木) 10:00–13:00',slots:['8/28(木) 10:00–13:00'],pay:'時給1,100円',cap:2,
+     tags:[['未経験OK','hot'],['服装貸与',''],['落ち着いた環境','']]},
+    {id:4,temple:'光明寺',title:'SNS投稿・写真撮影アシスト',em:'📷',cat:'SNS',work:['平日'],
+     when:'平日 応相談（週1〜）',slots:['平日午前（応相談）','平日午後（応相談）'],pay:'1回3,000円',cap:1,
+     tags:[['スマホでOK','hot'],['在宅一部可',''],['継続歓迎','']]},
+    {id:5,temple:'建仁院',title:'写経会の準備・片付け',em:'🖌️',cat:'受付',work:['土日'],
+     when:'毎週土曜 14:00–17:00',slots:['8/23(土) 14:00–17:00','8/30(土) 14:00–17:00','9/6(土) 14:00–17:00'],
+     pay:'時給1,150円',cap:2,tags:[['週1〜','hot'],['未経験OK',''],['冷暖房あり','']]},
+    {id:6,temple:'円成寺',title:'庭園の草むしり',em:'🌿',cat:'清掃',work:['単発','土日','早朝'],
+     when:'8/24(日) 7:00–10:00',slots:['8/24(日) 7:00–10:00'],pay:'時給1,200円',cap:3,
+     tags:[['未経験OK','hot'],['涼しい朝',''],['道具貸与','']]},
+  ];
+
+  const F={cat:'all',work:'all',q:''};
+  const grid=document.getElementById('grid');
+
+  function cardHTML(g){
+    return `<article class="gig-card">
+      <div class="gc-hero"><span>${g.em}</span>
+        <span class="cat">${g.cat}</span><span class="pay">${g.pay}</span></div>
+      <div class="gc-body">
+        <div class="gc-temple">${g.temple}</div>
+        <div class="gc-title">${g.title}</div>
+        <div class="gc-when"><span class="i">🗓</span>${g.when}</div>
+        <div class="gc-tags">${g.tags.map(t=>`<span class="gc-tag ${t[1]}">${t[0]}</span>`).join('')}</div>
+        <div class="gc-foot"><span class="gc-cap">募集 ${g.cap}名</span>
+          <button class="apply" onclick="openPanel(${g.id})">応募する</button></div>
+      </div></article>`;
+  }
+  function render(list){
+    grid.innerHTML = list.length ? list.map(cardHTML).join('')
+      : '<div class="empty">条件に合うお手伝いが見つかりませんでした。<br>フィルターやキーワードを変えてお試しください。</div>';
+    document.getElementById('rc').textContent = list.length+'件';
+  }
+  function setFilter(btn){
+    const f=btn.dataset.f;
+    document.querySelectorAll(`.chip[data-f="${f}"]`).forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); F[f]=btn.dataset.v; applyFilters();
+  }
+  function applyFilters(){
+    F.q=document.getElementById('q').value.trim();
+    const list=GIGS.filter(g=>{
+      if(F.cat!=='all' && g.cat!==F.cat) return false;
+      if(F.work!=='all' && !g.work.includes(F.work)) return false;
+      if(F.q){ const hay=(g.temple+g.title+g.when+g.tags.map(t=>t[0]).join('')+g.cat).toLowerCase();
+        if(!hay.includes(F.q.toLowerCase())) return false; }
+      return true;
+    });
+    render(list);
+  }
+
+  let current=null, slotSel=null;
+  function openPanel(id){
+    current=GIGS.find(g=>g.id===id);
+    document.getElementById('gs-em').textContent=current.em;
+    document.getElementById('gs-temple').textContent=current.temple;
+    document.getElementById('gs-name').textContent=current.title;
+    document.getElementById('gs-when').textContent=current.when;
+    document.getElementById('gs-pay').textContent=current.pay;
+    document.getElementById('gs-cap').textContent='募集'+current.cap+'名';
+    slotSel=null;
+    const multi=current.slots.length>1;
+    document.getElementById('slot-field').hidden=!multi;
+    document.getElementById('fixed-field').hidden=multi;
+    if(multi){
+      document.getElementById('slots').innerHTML=current.slots.map(s=>
+        `<button type="button" class="slotopt" aria-pressed="false" onclick="pickSlot(this,'${s.replace(/'/g,'')}')"><span class="rd"></span>${s}</button>`).join('');
+    } else {
+      slotSel=current.slots[0];
+      document.getElementById('fixed-slot').textContent='🗓 '+current.slots[0];
+    }
+    document.getElementById('scrim').classList.add('open');
+    document.getElementById('panel').classList.add('open');
+    document.getElementById('panel').setAttribute('aria-hidden','false');
+    valForm();
+  }
+  function closePanel(){
+    document.getElementById('scrim').classList.remove('open');
+    document.getElementById('panel').classList.remove('open');
+    document.getElementById('panel').setAttribute('aria-hidden','true');
+  }
+  function pickSlot(btn,val){
+    document.querySelectorAll('#slots .slotopt').forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); slotSel=val; valForm();
+  }
+  function valForm(){
+    const ok = document.getElementById('pr').value.trim()!=='' && slotSel!==null;
+    document.getElementById('submit').disabled=!ok;
+  }
+  function submitApp(){
+    document.getElementById('done-msg').innerHTML=
+      `<b>${current.temple}</b>の「<b>${current.title}</b>」に応募しました。<br>採用や日程の連絡は、マイページの「やりとり」で受け取れます。`;
+    closePanel();
+    document.getElementById('done').hidden=false;
+  }
+  function resetAll(){
+    document.getElementById('done').hidden=true;
+    document.getElementById('pr').value=''; document.getElementById('note').value='';
+    valForm();
+  }
+
+  render(GIGS);
+</script>
