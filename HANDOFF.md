@@ -27,7 +27,18 @@
   上記の実Artifact URLへリンク済み）
 - チーム共有用インデックス（全画面・資料・進捗のハブ）→ `prototype/index.html`
   / https://claude.ai/code/artifact/532711ff-3770-4523-a139-fb2f522e1dd1
-- まだ Git 管理・技術スタック確定はしていない（下記「未処理事項 B-1」で決める）
+- **Git 管理開始済み**（2026-07-15 初回コミット）。プロトタイプの公開デプロイ設定も投入済み（下記「デプロイ」）
+- 本開発の技術スタック（Next.js等）はまだ確定していない（下記「未処理事項 B-1」で決める）。
+  ※ 現状の公開は「プロトタイプHTMLの静的配信」であって、本アプリの実装ではない点に注意
+
+## デプロイ（プロトタイプの公開・Cloudflare／お墓サポートと同方式）
+
+- `wrangler.toml` … `[assets] directory = "./prototype"` で静的配信。**公開トップ＝`prototype/index.html`**
+- 公開サイト内で完結するよう、`index.html`/`landing.html` の内部リンクは claude.ai ではなく
+  ローカルHTML（`temple-owner-dashboard.html` 等）へ張替え済み
+- **未完了（ユーザー操作が必要）**: GitHubに空リポジトリ `tera-tsunagi`(kkishi0724-os) を作成 → push →
+  Cloudflare で当リポジトリを連携。以降は `git push` で自動デプロイ
+- リポジトリ内の各Artifact公開URL（claude.ai）は claude.ai 上の別コピー。公開サイトとは別物として併存
 
 ## モデルの使い分け方針（重要・ユーザー指示 2026-07-15）
 
