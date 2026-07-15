@@ -9,7 +9,8 @@
 「テラつなぎ（仮称）」。学生起業チームによる新規事業。
 
 - **現在フェーズ: 企画・プロトタイプ段階**（本開発の実装コードはまだ無い）
-- 要件定義・システム設計書 → `DESIGN.md`
+- 要件定義・システム設計書 → `DESIGN.md`（v1・スペース貸出）／
+  **`DESIGN_V2_PORTAL.md`（v2・スペース貸出×お寺特化スキマバイトの統合ポータル。全体マップ＋拡張DB）**
 - **デザインシステム（実装の型・正）→ `DESIGN_SYSTEM.md`** ＋ 目視用スタイルガイド `prototype/design-system.html`
   / https://claude.ai/code/artifact/0de2420e-de7f-457f-9cba-725d70c7f8c7
 - プロトタイプ（外部依存ゼロの自己完結 HTML/CSS/バニラJS。同ファイルパスで再公開すればURL維持、別会話からは `url` 指定）:
@@ -23,6 +24,12 @@
     / https://claude.ai/code/artifact/c645b5d1-43b1-4b08-874c-671328809d4f
   - 公開LP（お寺入口／企画者入口の二面・各画面へ実リンク）→ `prototype/landing.html`
     / https://claude.ai/code/artifact/b60cb1ff-9d6d-44ec-a159-c6f5507f25b0
+  - **【v2】統合ポータル（画面A ゲートウェイ＋画面B お寺統合ダッシュボード、トグル切替）→ `prototype/portal.html`
+    / https://claude.ai/code/artifact/1c8518d9-ac0b-4ab3-926e-d11d66684db7**
+    - 画面A：一般ユーザーを「①スペース借用（抹茶）」「②お寺スキマバイト（朱）」の2入口にスプリット分岐＋お寺関係者ログイン導線
+    - 画面B：左ナビ「ホーム／スペース貸出管理／スキマバイト管理」の統合DB。ホームに本日のお知らせ（イベント申込・バイト応募の件数）
+      と直近スケジュール（スペース利用予定／本日来る学生）。スペース承認・バイト採用/面談/見送りが動作
+    - スキマバイト機能（`gigs`/`gig_applications`、users統合）は `DESIGN_V2_PORTAL.md` 参照。**既存のスペース系画面と統合が必要**
 - **プロトタイプは主要5画面が揃い、掲載→検索→申込→相談→承認の往復が通して見える状態**（LPの各CTAは
   上記の実Artifact URLへリンク済み）
 - チーム共有用インデックス（全画面・資料・進捗のハブ）→ `prototype/index.html`

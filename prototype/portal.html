@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>テラつなぎ｜統合ポータル（ゲートウェイ／お寺ダッシュボード）</title>
+<style>
+  /* ===== TOKENS（共通デザインシステム） ===== */
+  :root{
+    color-scheme:light dark;
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;--matcha-deep:#414a2c;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);
+    --radius:15px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;--matcha-deep:#c3cf9f;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}}
+  :root[data-theme="light"]{
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;--matcha-deep:#414a2c;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);}
+  :root[data-theme="dark"]{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;--matcha-deep:#c3cf9f;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--washi);color:var(--sumi);font-family:var(--sans);
+    font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;}
+  a{color:inherit;text-decoration:none;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* ===== DEMO VIEW SWITCHER ===== */
+  .switcher{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--washi) 88%,transparent);
+    backdrop-filter:blur(9px);border-bottom:1px solid var(--line);}
+  .switcher-in{max-width:1180px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:12px;}
+  .switcher .lbl{font-size:12px;color:var(--sumi-faint);letter-spacing:.08em;}
+  .seg{display:inline-flex;background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px;}
+  .seg button{appearance:none;border:0;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:600;
+    padding:8px 15px;border-radius:9px;background:none;color:var(--sumi-soft);}
+  .seg button[aria-selected="true"]{background:var(--card);color:var(--sumi);box-shadow:var(--shadow);}
+  .switcher .sp{flex:1;}
+  .theme-btn{cursor:pointer;font-family:var(--sans);font-size:12.5px;padding:8px 13px;border-radius:9px;
+    border:1px solid var(--line);background:var(--card);color:var(--sumi-soft);}
+  .theme-btn:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+
+  .view[hidden]{display:none;}
+
+  /* ============================================================
+     画面A：ゲートウェイ
+     ============================================================ */
+  .ga-top{max-width:1180px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;gap:12px;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .seal{width:42px;height:42px;border-radius:11px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%,var(--shu),var(--shu-ink));
+    display:grid;place-items:center;color:#fbf3ea;font-family:var(--serif);font-size:22px;}
+  .brand-name{font-family:var(--serif);font-size:20px;letter-spacing:.05em;line-height:1;}
+  .brand-sub{font-size:11px;color:var(--sumi-faint);letter-spacing:.1em;}
+  .ga-login{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:14px;
+    padding:9px 16px;border-radius:11px;border:1.5px solid var(--line);background:var(--card);color:var(--sumi-soft);}
+  .ga-login:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+
+  .ga-hero{max-width:1180px;margin:0 auto;padding:30px 24px 8px;text-align:center;}
+  .ga-eyebrow{display:inline-flex;gap:8px;font-size:12.5px;letter-spacing:.14em;color:var(--matcha-ink);
+    background:var(--matcha-bg);padding:6px 14px;border-radius:18px;}
+  .ga-hero h1{font-family:var(--serif);font-size:clamp(28px,4.6vw,42px);letter-spacing:.03em;line-height:1.32;margin-top:16px;}
+  .ga-hero p{color:var(--sumi-soft);font-size:16px;margin:14px auto 0;max-width:34em;}
+
+  .gates{max-width:1180px;margin:0 auto;padding:26px 24px 8px;display:flex;gap:20px;}
+  .gate{flex:1;border-radius:22px;overflow:hidden;position:relative;min-height:400px;cursor:pointer;
+    border:1px solid var(--line-soft);box-shadow:var(--shadow);transition:flex .45s ease,box-shadow .3s ease;
+    display:flex;flex-direction:column;justify-content:flex-end;color:#fff;}
+  .gate:hover{flex:1.5;box-shadow:var(--shadow-lg);}
+  .gate::before{content:"";position:absolute;inset:0;z-index:0;}
+  .gate.g-space::before{background:linear-gradient(155deg,var(--matcha) 0%,var(--matcha-deep) 100%);}
+  .gate.g-work::before{background:linear-gradient(155deg,var(--shu) 0%,var(--shu-ink) 100%);}
+  .gate .bigemoji{position:absolute;top:24px;right:26px;font-size:74px;opacity:.5;z-index:1;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.2));}
+  .gate .g-body{position:relative;z-index:2;padding:30px 30px 32px;}
+  .gate .g-eyebrow{font-size:13px;letter-spacing:.1em;opacity:.9;}
+  .gate .g-title{font-family:var(--serif);font-size:clamp(24px,2.8vw,30px);line-height:1.35;margin-top:8px;}
+  .gate .g-desc{font-size:14.5px;line-height:1.75;opacity:.92;margin-top:12px;max-width:26em;}
+  .gate .g-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+  .gate .g-tag{font-size:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);
+    padding:4px 11px;border-radius:14px;}
+  .gate .g-cta{margin-top:20px;display:inline-flex;align-items:center;gap:9px;background:#fbf8f1;color:var(--sumi);
+    font-weight:700;font-size:15.5px;padding:13px 22px;border-radius:12px;box-shadow:var(--shadow);align-self:flex-start;}
+  .gate.g-space .g-cta{color:var(--matcha-ink);} .gate.g-work .g-cta{color:var(--shu-ink);}
+  .gate .g-cta:hover{filter:brightness(1.02);}
+
+  .ga-temple{max-width:1180px;margin:0 auto;padding:12px 24px 30px;}
+  .temple-strip{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line-soft);
+    border-radius:16px;padding:18px 22px;box-shadow:var(--shadow);flex-wrap:wrap;}
+  .temple-strip .em{width:48px;height:48px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:24px;
+    background:var(--kincha-bg);}
+  .temple-strip .tt{font-family:var(--serif);font-size:18px;}
+  .temple-strip .td{font-size:13.5px;color:var(--sumi-soft);}
+  .temple-strip .acts{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{appearance:none;cursor:pointer;font-family:var(--sans);font-weight:600;text-decoration:none;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;letter-spacing:.02em;}
+  .btn-kincha{font-size:14.5px;padding:11px 18px;border-radius:11px;background:var(--kincha);color:#fff;}
+  .btn-kincha:hover{filter:brightness(1.05);}
+  .btn-line{font-size:14.5px;padding:11px 18px;border-radius:11px;background:var(--card);border-color:var(--line);color:var(--sumi);}
+  .btn-line:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .ga-foot{max-width:1180px;margin:0 auto;padding:8px 24px 40px;color:var(--sumi-faint);font-size:13px;text-align:center;}
+
+  /* ============================================================
+     画面B：統合ダッシュボード
+     ============================================================ */
+  #screen-b{font-size:17px;} /* シニア配慮：やや大きめ */
+  .dash{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:246px 1fr;min-height:640px;}
+  .side{border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:6px;}
+  .side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;}
+  .side-brand .nm{font-family:var(--serif);font-size:18px;letter-spacing:.03em;}
+  .side-temple{background:var(--card-2);border:1px solid var(--line-soft);border-radius:12px;padding:12px 13px;
+    display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+  .side-temple .av{width:40px;height:40px;border-radius:50%;flex:none;background:linear-gradient(150deg,var(--matcha),var(--matcha-ink));
+    color:#f4f1e6;display:grid;place-items:center;font-family:var(--serif);font-size:17px;}
+  .side-temple .nm2{font-size:15px;font-weight:600;line-height:1.2;} .side-temple .rl{font-size:12px;color:var(--sumi-faint);}
+  .nav-sec{font-size:11.5px;letter-spacing:.12em;color:var(--sumi-faint);padding:10px 10px 6px;text-transform:uppercase;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:13px 13px;border-radius:11px;cursor:pointer;
+    font-size:15.5px;color:var(--sumi-soft);border:0;background:none;width:100%;font-family:var(--sans);text-align:left;}
+  .nav-item .ic{font-size:19px;width:24px;text-align:center;}
+  .nav-item:hover{background:var(--card-2);color:var(--sumi);}
+  .nav-item[aria-current="true"]{background:var(--matcha-bg);color:var(--matcha-ink);font-weight:700;}
+  .nav-item .badge{margin-left:auto;font-size:12px;font-weight:700;min-width:22px;height:22px;padding:0 6px;
+    border-radius:11px;background:var(--shu);color:#fbf3ea;display:inline-grid;place-items:center;}
+  .side-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-soft);}
+
+  .main{padding:26px 28px 40px;}
+  .dview[hidden]{display:none;}
+  .main-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+  .main-h h2{font-family:var(--serif);font-size:26px;letter-spacing:.02em;}
+  .main-h .date{color:var(--sumi-soft);font-size:15px;margin-top:3px;}
+  .btn-shu{font-size:15px;padding:12px 20px;border-radius:12px;background:linear-gradient(135deg,var(--shu),var(--shu-ink));
+    color:#fbf3ea;box-shadow:var(--shadow);border:0;cursor:pointer;font-weight:600;font-family:var(--sans);
+    display:inline-flex;align-items:center;gap:8px;}
+  .btn-shu:hover{filter:brightness(1.05);}
+  .btn-ok{background:var(--matcha);color:#f5f2e7;} .btn-ok:hover{filter:brightness(1.06);}
+  .btn-talk{background:var(--card);border:1.5px solid var(--line);color:var(--sumi);}
+  .btn-talk:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .btn-sm{font-size:14px;padding:9px 15px;border-radius:10px;border:0;cursor:pointer;font-family:var(--sans);font-weight:600;
+    display:inline-flex;align-items:center;gap:7px;}
+
+  /* 本日のお知らせ（2大アラート） */
+  .alerts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;}
+  .alert{display:flex;align-items:center;gap:16px;padding:20px 22px;border-radius:16px;cursor:pointer;
+    border:1px solid var(--line-soft);box-shadow:var(--shadow);transition:.18s;text-align:left;background:var(--card);width:100%;font-family:var(--sans);}
+  .alert:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+  .alert .ic{width:54px;height:54px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:27px;}
+  .alert.a-space .ic{background:var(--matcha-bg);} .alert.a-work .ic{background:var(--shu-bg);}
+  .alert .lbl{font-size:14.5px;color:var(--sumi-soft);}
+  .alert .big{font-family:var(--serif);font-size:30px;line-height:1.1;margin-top:2px;}
+  .alert .big small{font-size:15px;font-family:var(--sans);color:var(--sumi-faint);margin-left:3px;}
+  .alert .go{margin-left:auto;color:var(--sumi-faint);font-size:20px;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:24px;}
+  .stat{background:var(--card);border:1px solid var(--line-soft);border-radius:13px;padding:14px 15px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--stripe,var(--matcha));}
+  .stat .l{font-size:13px;color:var(--sumi-soft);} .stat .v{font-family:var(--serif);font-size:26px;margin-top:3px;}
+  .stat .v small{font-size:13px;font-family:var(--sans);color:var(--sumi-faint);margin-left:2px;}
+
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .panel{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .panel-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+  .panel-h .mk{width:7px;height:20px;border-radius:2px;}
+  .panel-h .t{font-family:var(--serif);font-size:17.5px;}
+  .panel-h .more{margin-left:auto;font-size:13px;color:var(--matcha-ink);cursor:pointer;}
+  .plist{padding:6px 8px 10px;}
+  .prow{display:flex;align-items:center;gap:13px;padding:12px 12px;border-radius:11px;}
+  .prow:hover{background:var(--card-2);}
+  .prow .d1{width:52px;flex:none;text-align:center;}
+  .prow .d1 .dd{font-family:var(--serif);font-size:19px;line-height:1;} .prow .d1 .mm{font-size:11px;color:var(--sumi-faint);}
+  .prow .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--serif);
+    font-size:16px;color:#f4f1e6;background:linear-gradient(150deg,#8a7f6a,#6f6553);}
+  .prow .bd{flex:1;min-width:0;} .prow .nm{font-size:15.5px;font-weight:600;} .prow .sub{font-size:13px;color:var(--sumi-soft);}
+  .prow .tm{font-size:13.5px;color:var(--sumi-soft);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .chip{font-size:12px;padding:3px 10px;border-radius:12px;background:var(--matcha-bg);color:var(--matcha-ink);white-space:nowrap;}
+  .chip.shu{background:var(--shu-bg);color:var(--shu-ink);}
+
+  /* 管理リスト共通 */
+  .card-item{border:1px solid var(--line-soft);border-radius:13px;background:var(--card-2);padding:16px 17px;margin-top:13px;}
+  .ci-top{display:flex;align-items:flex-start;gap:13px;}
+  .ci-em{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:23px;background:var(--matcha-bg);}
+  .ci-em.shu{background:var(--shu-bg);}
+  .ci-h{flex:1;min-width:0;} .ci-title{font-family:var(--serif);font-size:18px;} .ci-org{font-size:13.5px;color:var(--sumi-soft);margin-top:2px;}
+  .status{font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:20px;white-space:nowrap;}
+  .s-new{background:var(--shu-bg);color:var(--shu-ink);} .s-wait{background:var(--wait-bg);color:var(--wait);}
+  .s-ok{background:var(--ok-bg);color:var(--ok);} .s-off{background:var(--off-bg);color:var(--off);}
+  .s-open{background:var(--matcha-bg);color:var(--matcha-ink);}
+  .ci-meta{display:flex;flex-wrap:wrap;gap:7px 16px;margin:11px 0 2px;padding-left:59px;}
+  .mi{font-size:14px;color:var(--sumi-soft);display:flex;align-items:center;gap:6px;}
+  .mi b{color:var(--sumi);font-weight:600;font-variant-numeric:tabular-nums;} .mi .g{color:var(--matcha-ink);}
+  .ci-acts{display:flex;gap:9px;margin-top:13px;padding-left:59px;flex-wrap:wrap;}
+  .resolved{padding-left:59px;margin-top:12px;font-size:14px;color:var(--sumi-soft);display:flex;gap:8px;align-items:center;}
+  .card-item.done{opacity:.62;}
+
+  .space-row{display:flex;align-items:center;gap:14px;padding:15px 4px;border-bottom:1px solid var(--line-soft);}
+  .space-row:last-child{border-bottom:0;}
+  .sp-th{width:50px;height:50px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:24px;
+    background:var(--washi-2);border:1px solid var(--line-soft);}
+  .sp-b{flex:1;} .sp-n{font-size:16px;font-weight:600;} .sp-d{font-size:13px;color:var(--sumi-soft);margin-top:1px;}
+  .toggle{position:relative;width:50px;height:29px;border-radius:16px;border:0;cursor:pointer;background:var(--matcha);flex:none;}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;
+    transform:translateX(21px);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+
+  .sub-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:6px;}
+  .sub-tab{appearance:none;border:0;background:none;cursor:pointer;font-family:var(--sans);font-size:15px;color:var(--sumi-soft);
+    padding:11px 15px;position:relative;margin-bottom:-1px;display:flex;align-items:center;gap:8px;}
+  .sub-tab[aria-selected="true"]{color:var(--sumi);font-weight:700;}
+  .sub-tab[aria-selected="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;background:var(--shu);border-radius:3px;}
+  .cnt{font-size:12px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--shu-bg);color:var(--shu-ink);
+    display:inline-grid;place-items:center;font-weight:700;}
+  .subview[hidden]{display:none;}
+
+  /* toast */
+  .toast-host{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:10px;align-items:center;}
+  .toast{background:var(--sumi);color:var(--washi);padding:13px 20px;border-radius:12px;font-size:15px;box-shadow:var(--shadow-lg);
+    display:flex;align-items:center;gap:11px;animation:rise .3s ease;}
+  .toast .ti{width:24px;height:24px;border-radius:50%;background:var(--matcha);color:#fff;display:grid;place-items:center;font-size:14px;}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+  :focus-visible{outline:3px solid var(--kincha);outline-offset:2px;border-radius:6px;}
+
+  @media (max-width:900px){
+    .gates{flex-direction:column;} .gate:hover{flex:1;}
+    .dash{grid-template-columns:1fr;} .side{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line);}
+    .side-foot{display:none;} .alerts,.stat-row,.cols2{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:520px){
+    .brand-sub{display:none;} .stat-row{grid-template-columns:1fr 1fr;}
+    .ci-meta,.ci-acts,.resolved{padding-left:0;}
+  }
+</style>
+
+<!-- DEMO SWITCHER -->
+<div class="switcher">
+  <div class="switcher-in">
+    <span class="lbl">プロトタイプ表示</span>
+    <div class="seg" role="tablist">
+      <button role="tab" aria-selected="true" onclick="showView('a')">① ユーザー向けゲートウェイ</button>
+      <button role="tab" aria-selected="false" onclick="showView('b')">② お寺の統合ダッシュボード</button>
+    </div>
+    <span class="sp"></span>
+    <button class="theme-btn" onclick="toggleTheme()">◐ テーマ</button>
+  </div>
+</div>
+
+<!-- ============ 画面A：ゲートウェイ ============ -->
+<section class="view" id="screen-a">
+  <div class="ga-top">
+    <div class="brand"><div class="seal">寺</div>
+      <div><div class="brand-name">テラつなぎ</div><div class="brand-sub">お寺と、若い世代をつなぐポータル</div></div></div>
+    <a class="ga-login" href="#" onclick="return demoLogin()">⛩️ お寺関係者の方はこちら</a>
+  </div>
+
+  <div class="ga-hero">
+    <span class="ga-eyebrow">◦ お寺の「空き」と「人手」を、みんなの力に</span>
+    <h1>お寺で、なにをしてみたいですか？</h1>
+    <p>あなたのやりたいことから、入口をお選びください。むずかしい手続きや調整は、運営がおてつだいします。</p>
+  </div>
+
+  <div class="gates">
+    <div class="gate g-space" onclick="enterGate('space')">
+      <div class="bigemoji">🏛️</div>
+      <div class="g-body">
+        <div class="g-eyebrow">① イベント・企画をしたい方へ</div>
+        <div class="g-title">お寺のスペースを借りて、<br>企画をひらく。</div>
+        <div class="g-desc">本堂・庭園・和室・境内などの空き枠を予約。ヨガ、マルシェ、ワークショップ、展示に。</div>
+        <div class="g-tags"><span class="g-tag">スペースレンタル</span><span class="g-tag">空き時間予約</span><span class="g-tag">企画の申込</span></div>
+        <span class="g-cta">スペースを探す →</span>
+      </div>
+    </div>
+    <div class="gate g-work" onclick="enterGate('work')">
+      <div class="bigemoji">🧹</div>
+      <div class="g-body">
+        <div class="g-eyebrow">② お寺でお手伝い・お仕事をしたい方へ</div>
+        <div class="g-title">お寺で単発バイト、<br>ちょっと貢献する。</div>
+        <div class="g-desc">境内清掃、お祭りの手伝い、受付、SNS投稿アシストなど。お寺専用のスキマバイトです。</div>
+        <div class="g-tags"><span class="g-tag">単発バイト</span><span class="g-tag">スキマ時間</span><span class="g-tag">学生・若者歓迎</span></div>
+        <span class="g-cta">お手伝いを探す →</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ga-temple">
+    <div class="temple-strip">
+      <div class="em">⛩️</div>
+      <div>
+        <div class="tt">お寺のご住職・関係者の方へ</div>
+        <div class="td">空きスペースの掲載も、お手伝いの募集も、ひとつの管理画面から。掲載・調整は運営がサポートします。</div>
+      </div>
+      <div class="acts">
+        <button class="btn btn-line" onclick="demoLogin()">ログイン</button>
+        <button class="btn btn-kincha" onclick="toast('お寺の新規登録へ進みます（プロトタイプ）')">お寺を無料で登録する</button>
+      </div>
+    </div>
+  </div>
+  <div class="ga-foot">テラつなぎ（仮称）・学生チーム運営 ・ プロトタイプ</div>
+</section>
+
+<!-- ============ 画面B：統合ダッシュボード ============ -->
+<section class="view" id="screen-b" hidden>
+  <div class="dash">
+    <!-- SIDEBAR -->
+    <aside class="side">
+      <div class="side-brand"><div class="seal" style="width:34px;height:34px;font-size:18px">寺</div><span class="nm">テラつなぎ</span></div>
+      <div class="side-temple"><div class="av">妙</div><div><div class="nm2">妙覚寺</div><div class="rl">ご住職</div></div></div>
+      <div class="nav-sec">メニュー</div>
+      <button class="nav-item" aria-current="true" onclick="showDview('home',this)"><span class="ic">🏠</span>ホーム</button>
+      <button class="nav-item" onclick="showDview('space',this)"><span class="ic">🏛️</span>スペース貸出管理<span class="badge">3</span></button>
+      <button class="nav-item" onclick="showDview('gig',this)"><span class="ic">🧹</span>スキマバイト管理<span class="badge">5</span></button>
+      <div class="side-foot">
+        <button class="nav-item" onclick="toast('お知らせ一覧（プロトタイプ）')"><span class="ic">🔔</span>お知らせ</button>
+        <button class="nav-item" onclick="toast('運営に相談する（プロトタイプ）')"><span class="ic">💬</span>運営に相談</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <!-- ===== HOME ===== -->
+      <div class="dview" id="dv-home">
+        <div class="main-h">
+          <div><h2>おかえりなさいませ、ご住職</h2><div class="date">2026年7月15日（火）</div></div>
+          <button class="btn-shu" onclick="toast('新規募集・掲載メニュー（プロトタイプ）')">＋ 新しく募集・掲載する</button>
+        </div>
+
+        <!-- 本日のお知らせ -->
+        <div class="alerts">
+          <button class="alert a-space" onclick="showDview('space')">
+            <div class="ic">🏛️</div>
+            <div><div class="lbl">新着のイベント企画申込</div><div class="big num">3<small>件</small></div></div>
+            <div class="go">›</div>
+          </button>
+          <button class="alert a-work" onclick="showDview('gig')">
+            <div class="ic">🧹</div>
+            <div><div class="lbl">新着のスキマバイト応募</div><div class="big num">5<small>件</small></div></div>
+            <div class="go">›</div>
+          </button>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat" style="--stripe:var(--matcha)"><div class="l">掲載中スペース</div><div class="v num">4<small>件</small></div></div>
+          <div class="stat" style="--stripe:var(--shu)"><div class="l">募集中バイト</div><div class="v num">4<small>件</small></div></div>
+          <div class="stat" style="--stripe:var(--wait)"><div class="l">調整中の案件</div><div class="v num">2<small>件</small></div></div>
+          <div class="stat" style="--stripe:var(--kincha)"><div class="l">今月の成立</div><div class="v num">9<small>件</small></div></div>
+        </div>
+
+        <div class="cols2">
+          <!-- スペース利用予定 -->
+          <div class="panel">
+            <div class="panel-h"><span class="mk" style="background:var(--matcha)"></span><span class="t">直近のスペース利用予定</span><span class="more" onclick="showDview('space')">すべて ›</span></div>
+            <div class="plist">
+              <div class="prow"><div class="d1"><div class="dd num">3</div><div class="mm">8月</div></div>
+                <div class="bd"><div class="nm">朝の寺ヨガ教室</div><div class="sub">本堂 ・ みどりヨガスタジオ</div></div>
+                <div class="tm">7:00–8:30</div></div>
+              <div class="prow"><div class="d1"><div class="dd num">10</div><div class="mm">8月</div></div>
+                <div class="bd"><div class="nm">和菓子ワークショップ</div><div class="sub">客殿 ・ 季なごみ工房</div></div>
+                <div class="tm">13:00–15:30</div></div>
+              <div class="prow"><div class="d1"><div class="dd num">23</div><div class="mm">8月</div></div>
+                <div class="bd"><div class="nm">夜の写経と対話の会</div><div class="sub">本堂 ・ こころ塾</div></div>
+                <div class="tm">18:00–20:00</div></div>
+            </div>
+          </div>
+          <!-- 本日手伝いに来る学生 -->
+          <div class="panel">
+            <div class="panel-h"><span class="mk" style="background:var(--shu)"></span><span class="t">本日、お手伝いに来る学生</span><span class="more" onclick="showDview('gig')">すべて ›</span></div>
+            <div class="plist">
+              <div class="prow"><div class="av">佐</div>
+                <div class="bd"><div class="nm">佐藤 律 さん</div><div class="sub">境内の落ち葉清掃</div></div>
+                <span class="chip">8:00〜</span></div>
+              <div class="prow"><div class="av">山</div>
+                <div class="bd"><div class="nm">山口 葵 さん</div><div class="sub">法要の受付・お茶出し</div></div>
+                <span class="chip">10:00〜</span></div>
+              <div class="prow"><div class="av">中</div>
+                <div class="bd"><div class="nm">中村 大和 さん</div><div class="sub">SNS投稿・写真撮影</div></div>
+                <span class="chip">14:00〜</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SPACE MANAGEMENT ===== -->
+      <div class="dview" id="dv-space" hidden>
+        <div class="main-h">
+          <div><h2>スペース貸出管理</h2><div class="date">空き枠の掲載と、届いたイベント企画の申込</div></div>
+          <button class="btn-shu" onclick="toast('空き枠の新規掲載へ（プロトタイプ）')">＋ 空き枠を掲載する</button>
+        </div>
+        <div class="sub-tabs">
+          <button class="sub-tab" aria-selected="true" onclick="subTab('sp-apps',this)">届いた申込 <span class="cnt" id="sp-cnt">3</span></button>
+          <button class="sub-tab" aria-selected="false" onclick="subTab('sp-list',this)">掲載中スペース</button>
+        </div>
+        <div class="subview" id="sp-apps">
+          <div class="card-item" data-app>
+            <div class="ci-top"><div class="ci-em">🧘</div>
+              <div class="ci-h"><div class="ci-title">朝の寺ヨガ教室</div><div class="ci-org">みどりヨガスタジオ・田村 佳奈 さん</div></div>
+              <div class="status s-new" data-st>新着</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">📍</span>本堂</span><span class="mi"><span class="g">🗓</span><b>8/3(日) 7:00–8:30</b></span><span class="mi"><span class="g">👥</span><b>15名</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="approveApp(this,'朝の寺ヨガ教室')">✓ 承認する</button><button class="btn-sm btn-talk" onclick="toast('相談スレッドを開きます')">💬 詳細を相談</button></div>
+          </div>
+          <div class="card-item" data-app>
+            <div class="ci-top"><div class="ci-em">🍡</div>
+              <div class="ci-h"><div class="ci-title">和菓子づくりワークショップ</div><div class="ci-org">季なごみ工房・清水 誠 さん</div></div>
+              <div class="status s-new" data-st>新着</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">📍</span>客殿（和室）</span><span class="mi"><span class="g">🗓</span><b>8/10(日) 13:00–15:30</b></span><span class="mi"><span class="g">👥</span><b>12名</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="approveApp(this,'和菓子づくりワークショップ')">✓ 承認する</button><button class="btn-sm btn-talk" onclick="toast('相談スレッドを開きます')">💬 詳細を相談</button></div>
+          </div>
+          <div class="card-item" data-app>
+            <div class="ci-top"><div class="ci-em">🛍️</div>
+              <div class="ci-h"><div class="ci-title">境内あさひマルシェ</div><div class="ci-org">学生団体 ENGAWA</div></div>
+              <div class="status s-new" data-st>新着</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">📍</span>境内広場</span><span class="mi"><span class="g">🗓</span><b>9/7(日) 10:00–15:00</b></span><span class="mi"><span class="g">👥</span><b>8ブース</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="approveApp(this,'境内あさひマルシェ')">✓ 承認する</button><button class="btn-sm btn-talk" onclick="toast('相談スレッドを開きます')">💬 詳細を相談</button></div>
+          </div>
+        </div>
+        <div class="subview" id="sp-list" hidden>
+          <div class="space-row"><div class="sp-th">⛩️</div><div class="sp-b"><div class="sp-n">本堂</div><div class="sp-d">最大30名・静か・平日終日/土日午前</div></div><span class="chip">掲載中</span><button class="toggle" aria-pressed="true" aria-label="本堂の掲載" onclick="toggleSpace(this)"></button></div>
+          <div class="space-row"><div class="sp-th">🌿</div><div class="sp-b"><div class="sp-n">庭園</div><div class="sp-d">最大40名・屋外・撮影可</div></div><span class="chip">掲載中</span><button class="toggle" aria-pressed="true" aria-label="庭園の掲載" onclick="toggleSpace(this)"></button></div>
+          <div class="space-row"><div class="sp-th">🍵</div><div class="sp-b"><div class="sp-n">客殿（和室）</div><div class="sp-d">最大16名・冷暖房あり</div></div><span class="chip">掲載中</span><button class="toggle" aria-pressed="true" aria-label="客殿の掲載" onclick="toggleSpace(this)"></button></div>
+          <div class="space-row"><div class="sp-th">🏯</div><div class="sp-b"><div class="sp-n">境内広場</div><div class="sp-d">最大200名・屋外・電源あり</div></div><span class="chip">掲載中</span><button class="toggle" aria-pressed="true" aria-label="境内の掲載" onclick="toggleSpace(this)"></button></div>
+        </div>
+      </div>
+
+      <!-- ===== GIG MANAGEMENT ===== -->
+      <div class="dview" id="dv-gig" hidden>
+        <div class="main-h">
+          <div><h2>スキマバイト管理</h2><div class="date">お手伝いの募集と、応募してきた学生のマッチング</div></div>
+          <button class="btn-shu" onclick="toast('お手伝いの新規募集へ（プロトタイプ）')">＋ お手伝いを募集する</button>
+        </div>
+        <div class="sub-tabs">
+          <button class="sub-tab" aria-selected="true" onclick="subTab('gig-apps',this)">応募者 <span class="cnt" id="gig-cnt">5</span></button>
+          <button class="sub-tab" aria-selected="false" onclick="subTab('gig-list',this)">募集中の仕事</button>
+        </div>
+
+        <!-- 応募者 -->
+        <div class="subview" id="gig-apps">
+          <div class="card-item" data-gapp>
+            <div class="ci-top"><div class="ci-em shu">🧹</div>
+              <div class="ci-h"><div class="ci-title">佐藤 律 さん <span style="font-size:13px;color:var(--sumi-faint);font-family:var(--sans)">／ 関西大学 2年</span></div>
+                <div class="ci-org">応募先：境内の落ち葉清掃（9/6 8:00–11:00）</div></div>
+              <div class="status s-new" data-st>応募</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">💬</span>「朝が得意です。体力に自信あり」</span><span class="mi"><span class="g">💴</span><b>時給1,200円</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="adoptGig(this,'佐藤 律')">✓ 採用する</button><button class="btn-sm btn-talk" onclick="setGigWait(this)">🗓 面談を調整</button><button class="btn-sm" style="background:none;color:var(--sumi-faint)" onclick="declineGig(this)">見送り</button></div>
+          </div>
+          <div class="card-item" data-gapp>
+            <div class="ci-top"><div class="ci-em shu">🏮</div>
+              <div class="ci-h"><div class="ci-title">山口 葵 さん <span style="font-size:13px;color:var(--sumi-faint);font-family:var(--sans)">／ 京都芸術大学 3年</span></div>
+                <div class="ci-org">応募先：秋祭りの設営・受付補助（9/23 9:00–16:00）</div></div>
+              <div class="status s-new" data-st>応募</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">💬</span>「イベント運営の経験があります」</span><span class="mi"><span class="g">💴</span><b>日給8,000円</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="adoptGig(this,'山口 葵')">✓ 採用する</button><button class="btn-sm btn-talk" onclick="setGigWait(this)">🗓 面談を調整</button><button class="btn-sm" style="background:none;color:var(--sumi-faint)" onclick="declineGig(this)">見送り</button></div>
+          </div>
+          <div class="card-item" data-gapp>
+            <div class="ci-top"><div class="ci-em shu">📷</div>
+              <div class="ci-h"><div class="ci-title">中村 大和 さん <span style="font-size:13px;color:var(--sumi-faint);font-family:var(--sans)">／ 同志社大学 1年</span></div>
+                <div class="ci-org">応募先：SNS投稿・写真撮影アシスト（平日応相談）</div></div>
+              <div class="status s-wait" data-st>面談調整</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">💬</span>「Instagram運用が得意です」</span><span class="mi"><span class="g">💴</span><b>1回3,000円</b></span></div>
+            <div class="ci-acts" data-acts><button class="btn-sm btn-ok" onclick="adoptGig(this,'中村 大和')">✓ 採用する</button><button class="btn-sm btn-talk" onclick="toast('やりとりを続けます')">💬 連絡する</button></div>
+          </div>
+        </div>
+
+        <!-- 募集中の仕事 -->
+        <div class="subview" id="gig-list" hidden>
+          <div class="card-item">
+            <div class="ci-top"><div class="ci-em shu">🧹</div>
+              <div class="ci-h"><div class="ci-title">境内の落ち葉清掃</div><div class="ci-org">9/6(土) 8:00–11:00 ・ 時給1,200円</div></div>
+              <div class="status s-open">募集中</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">👥</span>募集 <b>2名</b></span><span class="mi"><span class="g">✋</span>応募 <b>3名</b></span></div>
+            <div class="ci-acts"><button class="btn-sm btn-talk" onclick="subTab('gig-apps',document.querySelectorAll('#dv-gig .sub-tab')[0])">応募者を見る</button><button class="btn-sm btn-talk" onclick="toast('募集を編集（プロトタイプ）')">編集</button></div>
+          </div>
+          <div class="card-item">
+            <div class="ci-top"><div class="ci-em shu">🏮</div>
+              <div class="ci-h"><div class="ci-title">秋祭りの設営・受付補助</div><div class="ci-org">9/23(祝) 9:00–16:00 ・ 日給8,000円</div></div>
+              <div class="status s-open">募集中</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">👥</span>募集 <b>5名</b></span><span class="mi"><span class="g">✋</span>応募 <b>7名</b></span></div>
+            <div class="ci-acts"><button class="btn-sm btn-talk" onclick="subTab('gig-apps',document.querySelectorAll('#dv-gig .sub-tab')[0])">応募者を見る</button><button class="btn-sm btn-talk" onclick="toast('募集を編集（プロトタイプ）')">編集</button></div>
+          </div>
+          <div class="card-item">
+            <div class="ci-top"><div class="ci-em shu">📷</div>
+              <div class="ci-h"><div class="ci-title">SNS投稿・写真撮影アシスト</div><div class="ci-org">平日 応相談 ・ 1回3,000円</div></div>
+              <div class="status s-open">募集中</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">👥</span>募集 <b>1名</b></span><span class="mi"><span class="g">✋</span>応募 <b>2名</b></span></div>
+            <div class="ci-acts"><button class="btn-sm btn-talk" onclick="subTab('gig-apps',document.querySelectorAll('#dv-gig .sub-tab')[0])">応募者を見る</button><button class="btn-sm btn-talk" onclick="toast('募集を編集（プロトタイプ）')">編集</button></div>
+          </div>
+          <div class="card-item">
+            <div class="ci-top"><div class="ci-em shu">🍵</div>
+              <div class="ci-h"><div class="ci-title">法要の受付・お茶出し</div><div class="ci-org">8/28(木) 10:00–13:00 ・ 時給1,100円</div></div>
+              <div class="status s-open">募集中</div></div>
+            <div class="ci-meta"><span class="mi"><span class="g">👥</span>募集 <b>2名</b></span><span class="mi"><span class="g">✋</span>応募 <b>1名</b></span></div>
+            <div class="ci-acts"><button class="btn-sm btn-talk" onclick="subTab('gig-apps',document.querySelectorAll('#dv-gig .sub-tab')[0])">応募者を見る</button><button class="btn-sm btn-talk" onclick="toast('募集を編集（プロトタイプ）')">編集</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast-host" id="toasts" aria-live="polite"></div>
+
+<script>
+  /* ===== view switching ===== */
+  function showView(v){
+    document.querySelectorAll('.seg button').forEach((b,i)=>b.setAttribute('aria-selected', String((v==='a')===(i===0))));
+    document.getElementById('screen-a').hidden = v!=='a';
+    document.getElementById('screen-b').hidden = v!=='b';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function enterGate(kind){
+    toast(kind==='space' ? 'スペース検索へ進みます（プロトタイプ）' : 'お手伝い（バイト）一覧へ進みます（プロトタイプ）');
+  }
+  function demoLogin(){ showView('b'); toast('お寺の統合ダッシュボードにログインしました'); return false; }
+
+  /* ===== dashboard nav ===== */
+  function showDview(name,btn){
+    document.querySelectorAll('#dv-home,#dv-space,#dv-gig').forEach(d=>d.hidden = d.id!=='dv-'+name);
+    const map={home:0,space:1,gig:2};
+    document.querySelectorAll('.side .nav-item').forEach(n=>n.removeAttribute('aria-current'));
+    const navs=document.querySelectorAll('.side > .nav-item');
+    if(navs[map[name]]) navs[map[name]].setAttribute('aria-current','true');
+    document.querySelector('.main').scrollTop=0;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function subTab(id,btn){
+    const wrap=btn.closest('.dview');
+    wrap.querySelectorAll('.sub-tab').forEach(t=>t.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    wrap.querySelectorAll('.subview').forEach(s=>s.hidden = s.id!==id);
+  }
+
+  /* ===== space actions ===== */
+  function approveApp(btn,title){
+    const c=btn.closest('[data-app]'); c.querySelector('[data-st]').className='status s-ok'; c.querySelector('[data-st]').textContent='承認済み';
+    c.classList.add('done'); c.querySelector('[data-acts]').outerHTML='<div class="resolved">✅ 「'+title+'」を承認しました。予定に登録されます。</div>';
+    bump('sp-cnt',-1); bumpBadge(1,-1); toast('「'+title+'」を承認しました');
+  }
+  function toggleSpace(btn){
+    const on=btn.getAttribute('aria-pressed')==='true'; btn.setAttribute('aria-pressed',String(!on));
+    const chip=btn.previousElementSibling; chip.textContent=on?'非公開':'掲載中';
+    toast(btn.closest('.space-row').querySelector('.sp-n').textContent+(on?' を非公開にしました':' を掲載しました'));
+  }
+
+  /* ===== gig actions ===== */
+  function adoptGig(btn,name){
+    const c=btn.closest('[data-gapp]'); c.querySelector('[data-st]').className='status s-ok'; c.querySelector('[data-st]').textContent='採用';
+    c.classList.add('done'); c.querySelector('[data-acts]').outerHTML='<div class="resolved">✅ '+name+' さんを採用しました。日時と持ち物を連絡します。</div>';
+    bump('gig-cnt',-1); bumpBadge(2,-1); toast(name+' さんを採用しました');
+  }
+  function setGigWait(btn){
+    const c=btn.closest('[data-gapp]'); c.querySelector('[data-st]').className='status s-wait'; c.querySelector('[data-st]').textContent='面談調整';
+    toast('面談の日程調整に進みます');
+  }
+  function declineGig(btn){
+    const c=btn.closest('[data-gapp]'); c.querySelector('[data-st]').className='status s-off'; c.querySelector('[data-st]').textContent='見送り';
+    c.classList.add('done'); c.querySelector('[data-acts]').outerHTML='<div class="resolved">この応募は見送りました。丁重にお伝えします。</div>';
+    bump('gig-cnt',-1); bumpBadge(2,-1); toast('応募を見送りました');
+  }
+
+  function bump(id,d){ const el=document.getElementById(id); if(el){ el.textContent=Math.max(0,(+el.textContent)+d); } }
+  function bumpBadge(navIdx,d){ const b=document.querySelectorAll('.side > .nav-item')[navIdx].querySelector('.badge');
+    if(b){ const n=Math.max(0,(+b.textContent)+d); if(n===0){b.style.display='none';} else b.textContent=n; } }
+
+  /* ===== toast / theme ===== */
+  function toast(msg){ const h=document.getElementById('toasts'); const e=document.createElement('div'); e.className='toast';
+    e.innerHTML='<span class="ti">✓</span><span>'+msg+'</span>'; h.appendChild(e);
+    setTimeout(()=>{e.style.opacity='0';e.style.transition='opacity .3s';setTimeout(()=>e.remove(),300);},2500); }
+  function toggleTheme(){ const r=document.documentElement;
+    const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+    r.setAttribute('data-theme',cur==='dark'?'light':'dark'); }
+</script>
