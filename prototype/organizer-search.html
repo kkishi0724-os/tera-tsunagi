@@ -1,0 +1,436 @@
+<title>テラつなぎ｜お寺の空き枠を探す</title>
+<style>
+  /* ===== TOKENS（共通デザインシステム） ===== */
+  :root{
+    color-scheme:light dark;
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}}
+  :root[data-theme="light"]{
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);}
+  :root[data-theme="dark"]{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--washi);color:var(--sumi);
+    font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* ===== HEADER ===== */
+  header.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--washi) 92%,transparent);
+    backdrop-filter:saturate(1.1) blur(8px);border-bottom:1px solid var(--line);}
+  .top-inner{max-width:1180px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:12px;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .seal{width:38px;height:38px;border-radius:10px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%,var(--shu),var(--shu-ink));
+    display:grid;place-items:center;color:#fbf3ea;font-family:var(--serif);font-size:20px;}
+  .brand-name{font-family:var(--serif);font-size:19px;letter-spacing:.04em;line-height:1;}
+  .brand-sub{font-size:11px;color:var(--sumi-faint);letter-spacing:.1em;}
+  .top-spacer{flex:1;}
+  .who{display:flex;align-items:center;gap:9px;}
+  .who .av{width:38px;height:38px;border-radius:50%;flex:none;background:linear-gradient(150deg,#8a7f6a,#6f6553);
+    color:#f4f1e6;display:grid;place-items:center;font-family:var(--serif);font-size:16px;}
+  .who .nm{font-size:13px;line-height:1.2;} .who .rl{font-size:11px;color:var(--sumi-faint);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 80px;}
+
+  /* ===== HERO / SEARCH ===== */
+  .hero{padding:30px 0 20px;}
+  .hero h1{font-family:var(--serif);font-size:30px;letter-spacing:.02em;}
+  .hero p{margin:8px 0 0;color:var(--sumi-soft);font-size:15.5px;}
+  .searchbar{margin-top:20px;display:flex;gap:10px;align-items:center;background:var(--card);
+    border:1.5px solid var(--line);border-radius:14px;padding:6px 6px 6px 16px;box-shadow:var(--shadow);}
+  .searchbar .mag{font-size:19px;color:var(--sumi-faint);}
+  .searchbar input{flex:1;border:0;background:none;font-family:var(--sans);font-size:16px;color:var(--sumi);
+    padding:12px 4px;}
+  .searchbar input:focus{outline:none;}
+  .searchbar .go{border:0;cursor:pointer;background:linear-gradient(135deg,var(--shu),var(--shu-ink));
+    color:#fbf3ea;font-family:var(--sans);font-size:15px;font-weight:600;padding:12px 22px;border-radius:10px;}
+
+  .filters{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
+  .filt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .filt-lab{font-size:12.5px;color:var(--sumi-faint);width:52px;flex:none;}
+  .chip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14px;padding:8px 14px;
+    border-radius:18px;border:1.5px solid var(--line);background:var(--card);color:var(--sumi-soft);}
+  .chip:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .chip[aria-pressed="true"]{border-color:var(--matcha);background:var(--matcha-bg);color:var(--matcha-ink);font-weight:600;}
+
+  .result-h{margin:24px 0 14px;display:flex;align-items:baseline;gap:10px;}
+  .result-h .n{font-family:var(--serif);font-size:19px;}
+  .result-h .c{font-size:14px;color:var(--sumi-faint);}
+
+  /* ===== RESULT CARDS ===== */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .space-card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:.18s;}
+  .space-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+  .sc-hero{height:118px;display:grid;place-items:center;font-size:48px;position:relative;
+    background:linear-gradient(135deg,var(--matcha-bg),var(--washi-2));}
+  .sc-hero .cat{position:absolute;top:11px;left:11px;background:var(--card);color:var(--matcha-ink);
+    font-size:12px;font-weight:600;padding:4px 11px;border-radius:14px;box-shadow:var(--shadow);}
+  .sc-hero .price{position:absolute;bottom:11px;right:11px;background:color-mix(in srgb,var(--sumi) 82%,transparent);
+    color:var(--washi);font-size:13px;font-weight:600;padding:4px 11px;border-radius:12px;font-variant-numeric:tabular-nums;}
+  .sc-body{padding:15px 16px 17px;display:flex;flex-direction:column;flex:1;}
+  .sc-temple{font-size:12.5px;color:var(--sumi-faint);}
+  .sc-name{font-family:var(--serif);font-size:18px;margin-top:2px;}
+  .sc-desc{font-size:13.5px;color:var(--sumi-soft);margin-top:7px;line-height:1.6;flex:1;}
+  .sc-slots{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;}
+  .sc-slot{font-size:12px;background:var(--card-2);border:1px solid var(--line-soft);color:var(--sumi-soft);
+    padding:4px 9px;border-radius:9px;font-variant-numeric:tabular-nums;}
+  .sc-tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+  .sc-tag{font-size:11.5px;background:var(--washi-2);color:var(--sumi-faint);padding:3px 9px;border-radius:12px;}
+  .sc-foot{margin-top:14px;display:flex;align-items:center;gap:10px;}
+  .sc-cap{font-size:13px;color:var(--sumi-soft);flex:1;}
+  .apply{border:0;cursor:pointer;background:var(--matcha);color:#f5f2e7;font-family:var(--sans);
+    font-size:14.5px;font-weight:600;padding:10px 18px;border-radius:10px;}
+  .apply:hover{filter:brightness(1.06);}
+  .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--sumi-faint);}
+
+  /* ===== APPLY PANEL (slide-over) ===== */
+  .scrim{position:fixed;inset:0;z-index:60;background:rgba(20,18,14,.42);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity .25s;}
+  .scrim.open{opacity:1;pointer-events:auto;}
+  .panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);z-index:61;background:var(--washi);
+    box-shadow:var(--shadow-lg);transform:translateX(100%);transition:transform .28s ease;
+    display:flex;flex-direction:column;}
+  .panel.open{transform:none;}
+  .pn-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;
+    background:var(--card);}
+  .pn-head .t{font-family:var(--serif);font-size:19px;}
+  .pn-close{margin-left:auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card);cursor:pointer;color:var(--sumi-soft);font-size:18px;}
+  .pn-close:hover{border-color:var(--off);color:var(--off);}
+  .pn-body{flex:1;overflow-y:auto;padding:20px;}
+
+  .slot-summary{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;padding:15px 16px;
+    display:flex;gap:13px;align-items:center;margin-bottom:22px;}
+  .slot-summary .em{width:48px;height:48px;border-radius:12px;flex:none;display:grid;place-items:center;
+    font-size:25px;background:var(--matcha-bg);}
+  .slot-summary .tp{font-size:12px;color:var(--sumi-faint);}
+  .slot-summary .nm{font-family:var(--serif);font-size:17px;margin-top:1px;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:15px;font-weight:600;margin-bottom:7px;}
+  .req{color:var(--shu-ink);font-size:12px;margin-left:6px;font-weight:600;}
+  .opt{color:var(--sumi-faint);font-size:12px;margin-left:6px;font-weight:400;}
+  input[type="text"],textarea,input[type="number"]{width:100%;font-family:var(--sans);font-size:16px;
+    color:var(--sumi);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;}
+  input:focus,textarea:focus{outline:none;border-color:var(--matcha);}
+  textarea{min-height:88px;resize:vertical;line-height:1.6;}
+  .catrow{display:flex;flex-wrap:wrap;gap:8px;}
+  .slotpick{display:flex;flex-direction:column;gap:8px;}
+  .slotopt{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:11px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--card);font-size:15px;font-variant-numeric:tabular-nums;}
+  .slotopt:hover{border-color:var(--matcha);}
+  .slotopt[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-bg);font-weight:600;}
+  .slotopt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative;}
+  .slotopt[aria-pressed="true"] .rd{border-color:var(--shu);}
+  .slotopt[aria-pressed="true"] .rd::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--shu);}
+  .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:11px;overflow:hidden;}
+  .stepper button{width:46px;height:46px;border:0;background:var(--card);cursor:pointer;font-size:22px;
+    color:var(--matcha-ink);font-family:var(--serif);}
+  .stepper button:hover{background:var(--matcha-bg);}
+  .stepper .val{min-width:66px;text-align:center;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;
+    border-left:1.5px solid var(--line);border-right:1.5px solid var(--line);height:46px;line-height:46px;}
+
+  .pn-foot{border-top:1px solid var(--line);padding:14px 20px;background:var(--card);display:flex;gap:12px;align-items:center;}
+  .pn-foot .note{font-size:12px;color:var(--sumi-faint);flex:1;}
+  .submit{border:0;cursor:pointer;background:linear-gradient(135deg,var(--shu),var(--shu-ink));color:#fbf3ea;
+    font-family:var(--sans);font-size:16px;font-weight:600;padding:13px 26px;border-radius:11px;box-shadow:var(--shadow);}
+  .submit:hover{filter:brightness(1.05);} .submit[disabled]{opacity:.5;cursor:not-allowed;}
+
+  /* success */
+  .done-overlay{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--washi) 82%,transparent);
+    backdrop-filter:blur(4px);display:grid;place-items:center;padding:22px;}
+  .done-overlay[hidden]{display:none;}
+  .done-box{background:var(--card);border:1px solid var(--line-soft);border-radius:18px;box-shadow:var(--shadow-lg);
+    padding:38px 34px;max-width:440px;text-align:center;animation:pop .35s ease;}
+  .done-box .seal-ok{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    background:var(--matcha);color:#f5f2e7;font-size:38px;}
+  .done-box h2{font-family:var(--serif);font-size:23px;margin-bottom:10px;}
+  .done-box p{color:var(--sumi-soft);font-size:15px;line-height:1.7;margin:0 0 22px;}
+  .done-box .submit{width:100%;}
+  @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+  :focus-visible{outline:3px solid var(--kincha);outline-offset:2px;border-radius:6px;}
+
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){
+    .grid{grid-template-columns:1fr;}
+    .brand-sub,.who .nm,.who .rl{display:none;}
+    .hero h1{font-size:25px;}
+    .searchbar .go{padding:12px 16px;}
+    .filt-lab{width:100%;}
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="seal">寺</div>
+      <div><div class="brand-name">テラつなぎ</div><div class="brand-sub">お寺の空き枠を探す</div></div>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="who">
+      <div class="av">田</div>
+      <div><div class="nm">みどりヨガスタジオ</div><div class="rl">企画者・田村さん</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>お寺で、あなたの企画をひらく。</h1>
+    <p>本堂・庭園・和室・境内——お寺の空いている場所と時間を見つけて、申し込めます。</p>
+    <div class="searchbar">
+      <span class="mag">🔍</span>
+      <input type="text" id="q" placeholder="キーワードで探す（例：本堂、庭園、静か、夜、駐車場）" oninput="applyFilters()">
+      <button class="go" onclick="applyFilters()">さがす</button>
+    </div>
+    <div class="filters">
+      <div class="filt-row">
+        <span class="filt-lab">企画</span>
+        <button class="chip" aria-pressed="true" data-f="cat" data-v="all" onclick="setFilter(this)">すべて</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="ヨガ" onclick="setFilter(this)">ヨガ・体操</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="マルシェ" onclick="setFilter(this)">マルシェ・市</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="ワークショップ" onclick="setFilter(this)">ワークショップ</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="音楽" onclick="setFilter(this)">音楽・朗読</button>
+        <button class="chip" aria-pressed="false" data-f="cat" data-v="展示" onclick="setFilter(this)">展示・撮影</button>
+      </div>
+      <div class="filt-row">
+        <span class="filt-lab">場所</span>
+        <button class="chip" aria-pressed="true" data-f="place" data-v="all" onclick="setFilter(this)">すべて</button>
+        <button class="chip" aria-pressed="false" data-f="place" data-v="本堂" onclick="setFilter(this)">本堂</button>
+        <button class="chip" aria-pressed="false" data-f="place" data-v="庭園" onclick="setFilter(this)">庭園</button>
+        <button class="chip" aria-pressed="false" data-f="place" data-v="和室" onclick="setFilter(this)">和室・客殿</button>
+        <button class="chip" aria-pressed="false" data-f="place" data-v="境内" onclick="setFilter(this)">境内・屋外</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-h">
+    <span class="n">見つかった空き枠</span><span class="c" id="rc">6件</span>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- apply panel -->
+<div class="scrim" id="scrim" onclick="closePanel()"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="pn-head">
+    <span class="t">この枠に申し込む</span>
+    <button class="pn-close" onclick="closePanel()" aria-label="閉じる">✕</button>
+  </div>
+  <div class="pn-body">
+    <div class="slot-summary">
+      <div class="em" id="ps-em">⛩️</div>
+      <div><div class="tp" id="ps-temple">妙覚寺</div><div class="nm" id="ps-name">本堂</div></div>
+    </div>
+
+    <div class="field">
+      <label for="ev-title">企画タイトル<span class="req">必須</span></label>
+      <input type="text" id="ev-title" placeholder="例）朝の寺ヨガ教室" oninput="valForm()">
+    </div>
+    <div class="field">
+      <label>企画のジャンル<span class="opt">任意</span></label>
+      <div class="catrow" id="ev-cat">
+        <button type="button" class="chip" aria-pressed="true" onclick="pickCat(this)">ヨガ・体操</button>
+        <button type="button" class="chip" aria-pressed="false" onclick="pickCat(this)">マルシェ</button>
+        <button type="button" class="chip" aria-pressed="false" onclick="pickCat(this)">ワークショップ</button>
+        <button type="button" class="chip" aria-pressed="false" onclick="pickCat(this)">音楽・朗読</button>
+        <button type="button" class="chip" aria-pressed="false" onclick="pickCat(this)">展示・撮影</button>
+        <button type="button" class="chip" aria-pressed="false" onclick="pickCat(this)">その他</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>希望日時<span class="req">必須</span></label>
+      <div class="slotpick" id="ev-slots"></div>
+    </div>
+    <div class="field">
+      <label>想定人数<span class="opt">任意</span></label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="stepper">
+          <button type="button" onclick="bump(-5)" aria-label="減らす">−</button>
+          <span class="val num" id="hc">15</span>
+          <button type="button" onclick="bump(5)" aria-label="増やす">＋</button>
+        </div>
+        <span style="color:var(--sumi-soft);font-size:14px">名ほど</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="ev-content">企画内容<span class="req">必須</span></label>
+      <textarea id="ev-content" placeholder="どんな催しか、音量や火気の有無、準備・片付けの流れなどを書くと、お寺が判断しやすくなります。" oninput="valForm()"></textarea>
+    </div>
+    <div class="field" style="margin-bottom:4px">
+      <label for="ev-msg">お寺への相談・連絡事項<span class="opt">任意</span></label>
+      <textarea id="ev-msg" placeholder="例）月1回の定期開催を希望しています。日程はご相談できます。"></textarea>
+    </div>
+  </div>
+  <div class="pn-foot">
+    <span class="note">送信すると、お寺と運営に申込が届きます。日程はこのあと相談できます。</span>
+    <button class="submit" id="submit" onclick="submitApp()" disabled>申し込む</button>
+  </div>
+</aside>
+
+<!-- success -->
+<div class="done-overlay" id="done" hidden>
+  <div class="done-box">
+    <div class="seal-ok">✓</div>
+    <h2>申込を送信しました</h2>
+    <p id="done-msg">お寺と運営に申込が届きました。お寺からの返信や日程の相談は、マイページの「相談スレッド」で続けられます。</p>
+    <button class="submit" onclick="resetAll()">一覧に戻る</button>
+  </div>
+</div>
+
+<script>
+  /* ===== data ===== */
+  const SPACES=[
+    {id:1,temple:'妙覚寺',name:'本堂',em:'⛩️',place:'本堂',cats:['ヨガ','音楽'],
+     desc:'朝の澄んだ空気の中、静かに過ごせる本堂。定期利用の相談も歓迎です。',
+     slots:['8/3(日) 7:00–8:30','8/17(日) 7:00–8:30','8/23(土) 18:00–20:00'],cap:30,price:'応相談',
+     tags:['静か・音量控えめ','土足厳禁','冷暖房なし']},
+    {id:2,temple:'妙覚寺',name:'境内広場',em:'🏯',place:'境内',cats:['マルシェ','展示'],
+     desc:'大きな催しに向く広い境内。電源あり、8ブース程度のマルシェ実績あり。',
+     slots:['9/7(日) 10:00–15:00','9/21(祝) 10:00–15:00'],cap:200,price:'¥20,000',
+     tags:['屋外','電源あり','拡声器は要相談']},
+    {id:3,temple:'長楽寺',name:'庭園',em:'🌿',place:'庭園',cats:['展示','ワークショップ'],
+     desc:'手入れの行き届いた回遊式庭園。撮影・展示・少人数の茶会に。',
+     slots:['土日午後（応相談）','8/30(土) 13:00–16:00'],cap:40,price:'¥15,000',
+     tags:['屋外','撮影可','雨天中止']},
+    {id:4,temple:'建仁院',name:'客殿（和室）',em:'🍵',place:'和室',cats:['ワークショップ'],
+     desc:'冷暖房完備の落ち着いた和室。手仕事のワークショップにおすすめ。',
+     slots:['平日 10:00–17:00（応相談）','8/12(火) 13:00–15:30'],cap:16,price:'¥8,000',
+     tags:['冷暖房あり','給湯・台所','駐車場']},
+    {id:5,temple:'光明寺',name:'本堂',em:'⛩️',place:'本堂',cats:['音楽','ヨガ'],
+     desc:'音の響きが美しい本堂。夜間の音楽会・朗読会に向いています。',
+     slots:['夜間 18:00–20:30（応相談）','9/13(土) 18:30–20:30'],cap:50,price:'応相談',
+     tags:['音響設備','夜間可','土足厳禁']},
+    {id:6,temple:'円成寺',name:'書院',em:'🏛️',place:'和室',cats:['ワークショップ','展示'],
+     desc:'少人数の会に向く静かな書院。読書会・句会・小さな展示に。',
+     slots:['随時（応相談）','8/24(日) 14:00–16:00'],cap:12,price:'¥5,000',
+     tags:['静か','お手洗い','駐車場']},
+  ];
+
+  const F={cat:'all',place:'all',q:''};
+  const grid=document.getElementById('grid');
+
+  function cardHTML(s){
+    return `<article class="space-card">
+      <div class="sc-hero"><span>${s.em}</span>
+        <span class="cat">${s.cats[0]}ほか</span>
+        <span class="price">${s.price}</span></div>
+      <div class="sc-body">
+        <div class="sc-temple">${s.temple}</div>
+        <div class="sc-name">${s.name}</div>
+        <div class="sc-desc">${s.desc}</div>
+        <div class="sc-slots">${s.slots.slice(0,2).map(x=>`<span class="sc-slot">🗓 ${x}</span>`).join('')}
+          ${s.slots.length>2?`<span class="sc-slot">＋${s.slots.length-2}枠</span>`:''}</div>
+        <div class="sc-tags">${s.tags.map(t=>`<span class="sc-tag">${t}</span>`).join('')}</div>
+        <div class="sc-foot"><span class="sc-cap">〜${s.cap}名</span>
+          <button class="apply" onclick="openPanel(${s.id})">申し込む</button></div>
+      </div></article>`;
+  }
+  function render(list){
+    grid.innerHTML = list.length ? list.map(cardHTML).join('')
+      : '<div class="empty">条件に合う空き枠が見つかりませんでした。<br>フィルターやキーワードを変えてお試しください。</div>';
+    document.getElementById('rc').textContent = list.length+'件';
+  }
+  function setFilter(btn){
+    const f=btn.dataset.f;
+    document.querySelectorAll(`.chip[data-f="${f}"]`).forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); F[f]=btn.dataset.v; applyFilters();
+  }
+  function applyFilters(){
+    F.q=document.getElementById('q').value.trim();
+    const list=SPACES.filter(s=>{
+      if(F.cat!=='all' && !s.cats.includes(F.cat)) return false;
+      if(F.place!=='all' && s.place!==F.place) return false;
+      if(F.q){ const hay=(s.temple+s.name+s.desc+s.tags.join('')+s.slots.join('')).toLowerCase();
+        if(!hay.includes(F.q.toLowerCase())) return false; }
+      return true;
+    });
+    render(list);
+  }
+
+  /* ===== apply panel ===== */
+  let current=null, hc=15, catSel='ヨガ・体操', slotSel=null;
+  function openPanel(id){
+    current=SPACES.find(s=>s.id===id);
+    document.getElementById('ps-em').textContent=current.em;
+    document.getElementById('ps-temple').textContent=current.temple;
+    document.getElementById('ps-name').textContent=current.name;
+    // slots
+    slotSel=null;
+    document.getElementById('ev-slots').innerHTML=current.slots.map((x,i)=>
+      `<button type="button" class="slotopt" aria-pressed="false" onclick="pickSlot(this,'${x.replace(/'/g,'')}')"><span class="rd"></span>${x}</button>`).join('');
+    document.getElementById('scrim').classList.add('open');
+    document.getElementById('panel').classList.add('open');
+    document.getElementById('panel').setAttribute('aria-hidden','false');
+    valForm();
+  }
+  function closePanel(){
+    document.getElementById('scrim').classList.remove('open');
+    document.getElementById('panel').classList.remove('open');
+    document.getElementById('panel').setAttribute('aria-hidden','true');
+  }
+  function pickCat(btn){
+    document.querySelectorAll('#ev-cat .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); catSel=btn.textContent;
+  }
+  function pickSlot(btn,val){
+    document.querySelectorAll('#ev-slots .slotopt').forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); slotSel=val; valForm();
+  }
+  function bump(d){ hc=Math.max(0,hc+d); document.getElementById('hc').textContent=hc; }
+  function valForm(){
+    const ok = document.getElementById('ev-title').value.trim()!==''
+      && document.getElementById('ev-content').value.trim()!=='' && slotSel!==null;
+    document.getElementById('submit').disabled=!ok;
+  }
+  function submitApp(){
+    const title=document.getElementById('ev-title').value.trim();
+    document.getElementById('done-msg').innerHTML=
+      `<b>${current.temple}・${current.name}</b> へ「<b>${title}</b>」の申込を送信しました。<br>お寺からの返信や日程の相談は、マイページの「相談スレッド」で続けられます。`;
+    closePanel();
+    document.getElementById('done').hidden=false;
+  }
+  function resetAll(){
+    document.getElementById('done').hidden=true;
+    document.getElementById('ev-title').value='';
+    document.getElementById('ev-content').value='';
+    document.getElementById('ev-msg').value='';
+    hc=15; document.getElementById('hc').textContent=15;
+    valForm();
+  }
+
+  render(SPACES);
+</script>

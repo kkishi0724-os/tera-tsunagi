@@ -1,0 +1,646 @@
+<title>テラつなぎ｜空き枠を掲載する</title>
+<style>
+  /* ===== TOKENS（ダッシュボードと共通のデザインシステム） ===== */
+  :root {
+    color-scheme: light dark;
+    --washi:#f3ede0; --washi-2:#ede5d4; --card:#fbf8f1; --card-2:#f7f1e5;
+    --sumi:#2c2822; --sumi-soft:#5b5346; --sumi-faint:#8c8375;
+    --line:#ddd2bd; --line-soft:#e7ddca;
+    --matcha:#6a774b; --matcha-ink:#4f5a35; --matcha-bg:#e6e8d5;
+    --shu:#b04a2f; --shu-ink:#8f3a24; --shu-bg:#f2ddd2; --kincha:#a8823f;
+    --ok:#4f7a4d; --ok-bg:#dfe9d8; --wait:#b3822a; --wait-bg:#f2e6c9; --off:#9a5a4a; --off-bg:#ecdcd4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){:root{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}}
+  :root[data-theme="light"]{
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);}
+  :root[data-theme="dark"]{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--washi);color:var(--sumi);
+    font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .num{font-variant-numeric:tabular-nums;}
+  h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;}
+
+  /* ===== HEADER ===== */
+  header.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--washi) 90%,transparent);
+    backdrop-filter:saturate(1.1) blur(8px);border-bottom:1px solid var(--line);}
+  .top-inner{max-width:1120px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:14px;}
+  .back{display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:11px;
+    border:1px solid var(--line);background:var(--card);color:var(--sumi-soft);cursor:pointer;
+    font-family:var(--sans);font-size:15px;text-decoration:none;}
+  .back:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .seal{width:38px;height:38px;border-radius:10px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%,var(--shu),var(--shu-ink));
+    display:grid;place-items:center;color:#fbf3ea;font-family:var(--serif);font-size:20px;}
+  .brand-name{font-family:var(--serif);font-size:18px;letter-spacing:.04em;}
+  .top-spacer{flex:1;}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 22px 120px;}
+  .page-h{margin-bottom:22px;}
+  .page-h h1{font-family:var(--serif);font-size:28px;letter-spacing:.02em;}
+  .page-h p{margin:6px 0 0;color:var(--sumi-soft);font-size:15.5px;}
+
+  /* ===== STEP PROGRESS ===== */
+  .steps{display:flex;align-items:center;gap:0;margin-bottom:26px;}
+  .stp{display:flex;align-items:center;gap:11px;flex:1;}
+  .stp .no{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
+    font-family:var(--serif);font-size:18px;background:var(--card);border:2px solid var(--line);
+    color:var(--sumi-faint);transition:.2s;}
+  .stp .tx{font-size:14.5px;color:var(--sumi-faint);line-height:1.2;}
+  .stp.active .no{background:var(--shu);border-color:var(--shu);color:#fbf3ea;}
+  .stp.active .tx{color:var(--sumi);font-weight:600;}
+  .stp.done .no{background:var(--matcha);border-color:var(--matcha);color:#f5f2e7;}
+  .stp.done .tx{color:var(--sumi-soft);}
+  .stp .bar{flex:1;height:2px;background:var(--line);margin:0 6px;border-radius:2px;}
+  .stp.done .bar{background:var(--matcha);}
+  .stp:last-child{flex:none;}
+
+  /* ===== LAYOUT ===== */
+  .cols{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;align-items:start;}
+  .form-card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:26px 26px 28px;}
+  .fstep[hidden]{display:none;}
+  .fstep h2{font-family:var(--serif);font-size:21px;letter-spacing:.02em;}
+  .fstep .lead{color:var(--sumi-soft);font-size:15px;margin:6px 0 20px;}
+
+  .field{margin-bottom:24px;}
+  .field > label{display:block;font-size:16px;font-weight:600;margin-bottom:4px;}
+  .field .hint{font-size:13.5px;color:var(--sumi-faint);margin-bottom:11px;}
+  .req{color:var(--shu-ink);font-size:12.5px;margin-left:6px;font-weight:600;}
+  .opt{color:var(--sumi-faint);font-size:12.5px;margin-left:6px;font-weight:400;}
+
+  /* selectable place cards */
+  .places{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .place{display:flex;align-items:center;gap:13px;padding:15px;border-radius:12px;cursor:pointer;
+    border:2px solid var(--line-soft);background:var(--card-2);transition:.15s;text-align:left;
+    font-family:var(--sans);color:var(--sumi);}
+  .place:hover{border-color:var(--matcha);}
+  .place[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-bg);}
+  .place .em{width:46px;height:46px;border-radius:11px;flex:none;display:grid;place-items:center;
+    font-size:24px;background:var(--card);border:1px solid var(--line-soft);}
+  .place .pn{font-size:16.5px;font-weight:600;}
+  .place .pd{font-size:12.5px;color:var(--sumi-soft);margin-top:1px;}
+  .place-add{border-style:dashed;border-color:var(--matcha);background:none;}
+  .place-add .em{background:var(--matcha-bg);border-color:transparent;color:var(--matcha-ink);font-family:var(--serif);}
+  .place-add .pn{color:var(--matcha-ink);}
+  .place-add[aria-pressed="true"]{background:none;border-color:var(--matcha);}
+
+  .addplace{margin-top:14px;padding:18px;border-radius:12px;background:var(--card-2);
+    border:1px solid var(--line-soft);display:flex;flex-direction:column;}
+  .addplace[hidden]{display:none;}
+  .ap-h{font-family:var(--serif);font-size:17px;margin-bottom:12px;}
+  .ap-l{font-size:14.5px;font-weight:600;margin:12px 0 7px;display:block;}
+  .ap-emoji{display:flex;flex-wrap:wrap;gap:8px;}
+  .emo{width:48px;height:48px;border-radius:11px;border:1.5px solid var(--line);background:var(--card);
+    cursor:pointer;font-size:23px;line-height:1;display:grid;place-items:center;}
+  .emo:hover{border-color:var(--matcha);}
+  .emo[aria-pressed="true"]{border-color:var(--shu);background:var(--shu-bg);}
+  .ap-btns{display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:18px;}
+
+  /* time slots */
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14.5px;
+    padding:9px 15px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--sumi-soft);}
+  .chip:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .chip[aria-pressed="true"]{border-color:var(--matcha);background:var(--matcha-bg);color:var(--matcha-ink);font-weight:600;}
+  .timerow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+  input[type="date"],input[type="time"],input[type="number"],input[type="text"],textarea,select{
+    font-family:var(--sans);font-size:16px;color:var(--sumi);background:var(--card);
+    border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;width:100%;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--matcha);}
+  .in-sm{max-width:150px;}
+  .add-slot{margin-top:12px;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;
+    border-radius:10px;border:1.5px dashed var(--matcha);background:none;color:var(--matcha-ink);
+    cursor:pointer;font-family:var(--sans);font-size:15px;font-weight:600;}
+  .add-slot:hover{background:var(--matcha-bg);}
+  .slot-list{margin-top:14px;display:flex;flex-direction:column;gap:9px;}
+  .slot{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;
+    background:var(--matcha-bg);border:1px solid var(--line-soft);}
+  .slot .si{color:var(--matcha-ink);font-size:18px;}
+  .slot .st{flex:1;font-size:15.5px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .slot .rm{border:0;background:none;cursor:pointer;color:var(--off);font-size:14px;padding:6px 8px;border-radius:8px;}
+  .slot .rm:hover{background:var(--off-bg);}
+
+  /* stepper */
+  .stepper{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;}
+  .stepper button{width:52px;height:52px;border:0;background:var(--card);cursor:pointer;font-size:24px;
+    color:var(--matcha-ink);font-family:var(--serif);}
+  .stepper button:hover{background:var(--matcha-bg);}
+  .stepper .val{min-width:76px;text-align:center;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;
+    border-left:1.5px solid var(--line);border-right:1.5px solid var(--line);height:52px;line-height:52px;}
+  .unit{margin-left:10px;color:var(--sumi-soft);font-size:15px;}
+
+  /* equip / condition chips */
+  .toggles{display:flex;flex-wrap:wrap;gap:9px;}
+  .tg{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14.5px;
+    padding:10px 15px;border-radius:11px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--sumi-soft);display:inline-flex;align-items:center;gap:7px;}
+  .tg:hover{border-color:var(--matcha);}
+  .tg[aria-pressed="true"]{border-color:var(--matcha);background:var(--matcha-bg);color:var(--matcha-ink);font-weight:600;}
+  .tg[aria-pressed="true"] .ck{opacity:1;} .tg .ck{opacity:0;}
+  .price-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .yen-wrap{position:relative;max-width:200px;flex:1;}
+  .yen-wrap input{padding-left:32px;}
+  .yen-wrap::before{content:"¥";position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    color:var(--sumi-faint);font-size:16px;}
+  textarea{min-height:90px;resize:vertical;line-height:1.6;}
+
+  /* confirm summary */
+  .sumtable{display:flex;flex-direction:column;gap:0;border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;}
+  .sumrow{display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line-soft);}
+  .sumrow:last-child{border-bottom:0;}
+  .sumrow .k{width:110px;flex:none;color:var(--sumi-soft);font-size:14.5px;}
+  .sumrow .v{font-size:15.5px;font-weight:600;}
+  .confirm-note{margin-top:16px;padding:14px 16px;border-radius:11px;background:var(--wait-bg);
+    color:var(--wait);font-size:14px;line-height:1.6;}
+
+  /* ===== PREVIEW (sticky) ===== */
+  .preview-wrap{position:sticky;top:78px;}
+  .pv-label{font-size:12.5px;letter-spacing:.14em;color:var(--sumi-faint);text-transform:uppercase;margin-bottom:9px;}
+  .pv-card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);overflow:hidden;}
+  .pv-hero{height:120px;background:linear-gradient(135deg,var(--matcha-bg),var(--washi-2));
+    display:grid;place-items:center;font-size:52px;position:relative;}
+  .pv-hero .tag{position:absolute;top:12px;left:12px;background:var(--card);color:var(--matcha-ink);
+    font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:16px;box-shadow:var(--shadow);}
+  .pv-body{padding:16px 17px 18px;}
+  .pv-temple{font-size:12.5px;color:var(--sumi-faint);}
+  .pv-name{font-family:var(--serif);font-size:19px;margin-top:2px;}
+  .pv-slots{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+  .pv-slotline{font-size:13.5px;color:var(--sumi-soft);display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums;}
+  .pv-slotline .i{color:var(--matcha-ink);}
+  .pv-meta{margin-top:13px;display:flex;flex-wrap:wrap;gap:7px;}
+  .pv-tag{font-size:12px;padding:4px 10px;border-radius:14px;background:var(--washi-2);color:var(--sumi-soft);}
+  .pv-price{margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft);
+    font-family:var(--serif);font-size:20px;}
+  .pv-price small{font-size:13px;font-family:var(--sans);color:var(--sumi-faint);}
+  .pv-empty{color:var(--sumi-faint);font-size:13.5px;font-style:normal;}
+
+  /* ===== FOOTER NAV (sticky) ===== */
+  .nav-bar{position:fixed;bottom:0;left:0;right:0;z-index:50;
+    background:color-mix(in srgb,var(--washi) 92%,transparent);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);}
+  .nav-inner{max-width:1120px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:12px;}
+  .nav-inner .prog{font-size:13.5px;color:var(--sumi-faint);}
+  .nav-inner .sp{flex:1;}
+  .btn{appearance:none;cursor:pointer;font-family:var(--sans);font-size:16px;font-weight:600;
+    padding:13px 24px;border-radius:11px;border:1.5px solid transparent;display:inline-flex;
+    align-items:center;gap:9px;letter-spacing:.02em;}
+  .btn-back{background:var(--card);border-color:var(--line);color:var(--sumi-soft);}
+  .btn-back:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .btn-next{background:var(--matcha);color:#f5f2e7;}
+  .btn-next:hover{filter:brightness(1.06);}
+  .btn-pub{background:linear-gradient(135deg,var(--shu),var(--shu-ink));color:#fbf3ea;box-shadow:var(--shadow-lg);}
+  .btn-pub:hover{filter:brightness(1.05);}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+
+  /* success overlay */
+  .done-overlay{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--washi) 82%,transparent);
+    backdrop-filter:blur(4px);display:grid;place-items:center;padding:22px;}
+  .done-overlay[hidden]{display:none;}
+  .done-box{background:var(--card);border:1px solid var(--line-soft);border-radius:18px;
+    box-shadow:var(--shadow-lg);padding:38px 34px;max-width:420px;text-align:center;animation:pop .35s ease;}
+  .done-box .seal-ok{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    background:var(--matcha);color:#f5f2e7;font-size:38px;}
+  .done-box h2{font-family:var(--serif);font-size:23px;margin-bottom:10px;}
+  .done-box p{color:var(--sumi-soft);font-size:15px;line-height:1.7;margin:0 0 22px;}
+  .done-box .btn{width:100%;justify-content:center;}
+  @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+  :focus-visible{outline:3px solid var(--kincha);outline-offset:2px;border-radius:6px;}
+
+  @media (max-width:900px){
+    .cols{grid-template-columns:1fr;}
+    .preview-wrap{position:static;}
+    .stp .tx{display:none;}
+    .stp{flex:none;}.stp .bar{width:26px;flex:none;}
+  }
+  @media (max-width:560px){
+    body{font-size:16px;}
+    .places{grid-template-columns:1fr;}
+    .brand-name{display:none;}
+    .page-h h1{font-size:23px;}
+    .nav-inner .prog{display:none;}
+    .btn{padding:13px 18px;}
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="back" href="#" onclick="return false" title="ダッシュボードに戻る">‹ ダッシュボード</a>
+    <div class="top-spacer"></div>
+    <div class="seal">寺</div>
+    <div class="brand-name">テラつなぎ</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="page-h">
+    <h1>新しい空き枠を掲載する</h1>
+    <p>4つのステップで、貸し出したい場所と時間を掲載できます。いつでも「戻る」で直せます。</p>
+  </div>
+
+  <!-- progress -->
+  <div class="steps" id="steps">
+    <div class="stp active" data-stp="1"><span class="no">1</span><span class="tx">場所</span><span class="bar"></span></div>
+    <div class="stp" data-stp="2"><span class="no">2</span><span class="tx">日時</span><span class="bar"></span></div>
+    <div class="stp" data-stp="3"><span class="no">3</span><span class="tx">条件・設備</span><span class="bar"></span></div>
+    <div class="stp" data-stp="4"><span class="no">4</span><span class="tx">確認</span></div>
+  </div>
+
+  <div class="cols">
+    <!-- FORM -->
+    <div class="form-card">
+
+      <!-- STEP 1 -->
+      <section class="fstep" data-step="1">
+        <h2>どの場所を貸し出しますか？</h2>
+        <p class="lead">この寺院に登録された場所から選ぶか、「別の場所を追加」で新しく登録できます。<br>お寺ごとに貸せる場所は違うので、ご自由に足していただけます。</p>
+        <div class="field">
+          <div class="places" id="places">
+            <button type="button" class="place" aria-pressed="false" data-place="本堂" data-em="⛩️" data-desc="最大30名・静かな空間" onclick="pickPlace(this)">
+              <span class="em">⛩️</span><span><span class="pn">本堂</span><span class="pd">最大30名・静かな空間</span></span>
+            </button>
+            <button type="button" class="place" aria-pressed="false" data-place="庭園" data-em="🌿" data-desc="最大40名・屋外・撮影可" onclick="pickPlace(this)">
+              <span class="em">🌿</span><span><span class="pn">庭園</span><span class="pd">最大40名・屋外・撮影可</span></span>
+            </button>
+            <button type="button" class="place" aria-pressed="false" data-place="客殿（和室）" data-em="🍵" data-desc="最大16名・冷暖房あり" onclick="pickPlace(this)">
+              <span class="em">🍵</span><span><span class="pn">客殿（和室）</span><span class="pd">最大16名・冷暖房あり</span></span>
+            </button>
+            <button type="button" class="place" aria-pressed="false" data-place="境内広場" data-em="🏯" data-desc="最大200名・屋外・電源あり" onclick="pickPlace(this)">
+              <span class="em">🏯</span><span><span class="pn">境内広場</span><span class="pd">最大200名・屋外・電源あり</span></span>
+            </button>
+            <button type="button" class="place place-add" id="place-add-tile" onclick="showAddPlace()">
+              <span class="em">＋</span><span><span class="pn">別の場所を追加</span><span class="pd">お寺ごとの場所を登録</span></span>
+            </button>
+          </div>
+
+          <div class="addplace" id="addplace" hidden>
+            <div class="ap-h">新しい場所を登録</div>
+            <label class="ap-l">アイコン<span class="opt">お好きなものを選べます</span></label>
+            <div class="ap-emoji" id="ap-emoji">
+              <button type="button" class="emo" aria-pressed="true"  onclick="pickEmoji(this)">🏮</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">🔔</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">🪷</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">🌸</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">🏛️</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">🅿️</button>
+              <button type="button" class="emo" aria-pressed="false" onclick="pickEmoji(this)">📍</button>
+            </div>
+            <label class="ap-l" for="np-name">場所の名前<span class="req">必須</span></label>
+            <input type="text" id="np-name" placeholder="例）鐘楼（しょうろう）、書院、山門前の広場" oninput="apValidate()">
+            <label class="ap-l" for="np-desc">ひとこと説明<span class="opt">任意</span></label>
+            <input type="text" id="np-desc" placeholder="例）最大20名・屋根あり・落ち着いた雰囲気">
+            <div class="ap-btns">
+              <button type="button" class="chip" onclick="hideAddPlace()">やめる</button>
+              <button type="button" class="btn btn-next" id="ap-save" style="padding:11px 20px" onclick="addPlace()" disabled>この場所を登録する</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="fstep" data-step="2" hidden>
+        <h2>いつ貸し出せますか？</h2>
+        <p class="lead">日付と時間帯を選び、「この枠を追加」を押してください。複数の枠をまとめて掲載できます。</p>
+        <div class="field">
+          <label>日付<span class="req">必須</span></label>
+          <input type="date" id="f-date" value="2026-08-03" onchange="renderPreview()">
+        </div>
+        <div class="field">
+          <label>時間帯<span class="req">必須</span></label>
+          <div class="hint">よく使う時間帯はワンタップで選べます。細かい調整もできます。</div>
+          <div class="presets" id="presets">
+            <button type="button" class="chip" aria-pressed="false" data-s="09:00" data-e="12:00" onclick="pickPreset(this)">午前 9:00–12:00</button>
+            <button type="button" class="chip" aria-pressed="false" data-s="13:00" data-e="17:00" onclick="pickPreset(this)">午後 13:00–17:00</button>
+            <button type="button" class="chip" aria-pressed="false" data-s="18:00" data-e="20:00" onclick="pickPreset(this)">夜 18:00–20:00</button>
+          </div>
+          <div class="timerow">
+            <div><label style="font-size:13.5px;font-weight:400;color:var(--sumi-soft)">開始</label>
+              <input type="time" id="f-start" class="in-sm" value="09:00"></div>
+            <div style="align-self:center;padding-bottom:12px;color:var(--sumi-faint)">〜</div>
+            <div><label style="font-size:13.5px;font-weight:400;color:var(--sumi-soft)">終了</label>
+              <input type="time" id="f-end" class="in-sm" value="12:00"></div>
+          </div>
+          <button type="button" class="add-slot" onclick="addSlot()">＋ この枠を追加する</button>
+          <div class="slot-list" id="slot-list"></div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="fstep" data-step="3" hidden>
+        <h2>条件と設備を教えてください</h2>
+        <p class="lead">企画者が安心して申し込めるよう、受け入れの目安を選びます。</p>
+
+        <div class="field">
+          <label>受け入れ人数<span class="opt">任意</span></label>
+          <div class="hint">一度に受け入れられるおおよその人数です。</div>
+          <div style="display:flex;align-items:center">
+            <div class="stepper">
+              <button type="button" aria-label="減らす" onclick="bumpCap(-5)">−</button>
+              <span class="val num" id="cap-val">20</span>
+              <button type="button" aria-label="増やす" onclick="bumpCap(5)">＋</button>
+            </div>
+            <span class="unit">名まで</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ご利用料<span class="opt">任意</span></label>
+          <div class="hint">空欄のままなら「応相談」として掲載します。</div>
+          <div class="price-row">
+            <div class="yen-wrap"><input type="number" id="f-price" placeholder="0" min="0" step="1000" oninput="clearReq();renderPreview()"></div>
+            <span style="color:var(--sumi-soft);font-size:15px">／回</span>
+            <button type="button" class="chip" id="chip-soudan" aria-pressed="true" onclick="setSoudan(this)">応相談にする</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>使える設備<span class="opt">任意・複数選択</span></label>
+          <div class="hint">貸し出せる・使えるものを選んでください。</div>
+          <div class="toggles" id="equip">
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>椅子</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>座卓・机</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>電源</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>音響設備</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>Wi-Fi</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>給湯・台所</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>お手洗い</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tg(this)"><span class="ck">✓</span>駐車場</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:6px">
+          <label>お願い・条件<span class="opt">任意</span></label>
+          <div class="hint">当てはまるものを選ぶと、下の文章に足されます。追記・修正もできます。</div>
+          <div class="toggles" id="conds" style="margin-bottom:12px">
+            <button type="button" class="tg" aria-pressed="false" onclick="tgCond(this,'火気の使用はご遠慮ください。')"><span class="ck">✓</span>火気厳禁</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tgCond(this,'拡声器・大音量はご遠慮ください。')"><span class="ck">✓</span>大音量NG</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tgCond(this,'本堂内は土足厳禁です。')"><span class="ck">✓</span>土足厳禁</button>
+            <button type="button" class="tg" aria-pressed="false" onclick="tgCond(this,'飲食は応相談とさせてください。')"><span class="ck">✓</span>飲食応相談</button>
+          </div>
+          <textarea id="f-cond" placeholder="例）静かに過ごしていただける催しを歓迎します。準備・片付けは時間内でお願いします。" oninput="renderPreview()"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="fstep" data-step="4" hidden>
+        <h2>この内容で掲載します</h2>
+        <p class="lead">右のプレビューが、企画者に見える掲載イメージです。よろしければ掲載してください。</p>
+        <div class="sumtable" id="summary"></div>
+        <div class="confirm-note">掲載後も、ダッシュボードからいつでも内容の修正・非公開ができます。申込が届いたら通知でお知らせします。</div>
+      </section>
+
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-wrap">
+      <div class="pv-label">企画者にはこう見えます</div>
+      <div class="pv-card">
+        <div class="pv-hero"><span id="pv-em">⛩️</span><span class="tag" id="pv-tag">掲載プレビュー</span></div>
+        <div class="pv-body">
+          <div class="pv-temple">妙覚寺</div>
+          <div class="pv-name" id="pv-name">場所を選んでください</div>
+          <div class="pv-slots" id="pv-slots"><span class="pv-empty">日時はまだ追加されていません</span></div>
+          <div class="pv-meta" id="pv-meta"></div>
+          <div class="pv-price" id="pv-price"><span class="pv-empty" style="font-family:var(--sans);font-size:13.5px">料金は未設定</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- footer nav -->
+<div class="nav-bar">
+  <div class="nav-inner">
+    <button class="btn btn-back" id="btn-back" onclick="go(-1)" hidden>‹ 戻る</button>
+    <span class="sp"></span>
+    <span class="prog" id="prog">ステップ 1 / 4</span>
+    <button class="btn btn-next" id="btn-next" onclick="go(1)" disabled>次へ ›</button>
+    <button class="btn btn-pub" id="btn-pub" onclick="publish()" hidden>この内容で掲載する</button>
+  </div>
+</div>
+
+<!-- success -->
+<div class="done-overlay" id="done" hidden>
+  <div class="done-box">
+    <div class="seal-ok">✓</div>
+    <h2>空き枠を掲載しました</h2>
+    <p id="done-msg">企画者の募集を開始しました。申込が届いたら、ダッシュボードの「新着の申込」でお知らせします。</p>
+    <button class="btn btn-next" onclick="location.reload()">ダッシュボードに戻る</button>
+  </div>
+</div>
+
+<script>
+  /* ===== state ===== */
+  const S = { step:1, place:null, em:null, capacity:20, price:null, soudan:true,
+              slots:[], equip:[], conds:[], condText:'' };
+  const WD = ['日','月','火','水','木','金','土'];
+
+  /* ===== step nav ===== */
+  function go(dir){
+    const nx = S.step + dir;
+    if(nx<1||nx>4) return;
+    S.step = nx; renderStep();
+  }
+  function renderStep(){
+    document.querySelectorAll('.fstep').forEach(s=>s.hidden = +s.dataset.step !== S.step);
+    document.querySelectorAll('.stp').forEach(s=>{
+      const n=+s.dataset.stp; s.classList.toggle('active',n===S.step); s.classList.toggle('done',n<S.step);
+    });
+    document.getElementById('prog').textContent = `ステップ ${S.step} / 4`;
+    document.getElementById('btn-back').hidden = S.step===1;
+    document.getElementById('btn-next').hidden = S.step===4;
+    document.getElementById('btn-pub').hidden  = S.step!==4;
+    if(S.step===4) buildSummary();
+    validate();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function validate(){
+    let ok=true;
+    if(S.step===1) ok = !!S.place;
+    if(S.step===2) ok = S.slots.length>0;
+    document.getElementById('btn-next').disabled = !ok;
+  }
+
+  /* ===== step1 ===== */
+  function pickPlace(btn){
+    document.querySelectorAll('.place').forEach(p=>p.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true');
+    S.place = btn.dataset.place; S.em = btn.dataset.em;
+    renderPreview(); validate();
+  }
+  let apEmoji='🏮';
+  function showAddPlace(){
+    document.getElementById('addplace').hidden=false;
+    document.getElementById('place-add-tile').setAttribute('aria-pressed','true');
+    document.getElementById('np-name').focus();
+  }
+  function hideAddPlace(){
+    document.getElementById('addplace').hidden=true;
+    document.getElementById('place-add-tile').setAttribute('aria-pressed','false');
+    document.getElementById('np-name').value=''; document.getElementById('np-desc').value='';
+    apValidate();
+  }
+  function pickEmoji(btn){
+    document.querySelectorAll('#ap-emoji .emo').forEach(e=>e.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true'); apEmoji=btn.textContent;
+  }
+  function apValidate(){
+    document.getElementById('ap-save').disabled = document.getElementById('np-name').value.trim()==='';
+  }
+  function addPlace(){
+    const name=document.getElementById('np-name').value.trim();
+    if(!name) return;
+    const desc=document.getElementById('np-desc').value.trim()||'この寺院で登録した場所';
+    const tile=document.getElementById('place-add-tile');
+    const btn=document.createElement('button');
+    btn.type='button'; btn.className='place'; btn.setAttribute('aria-pressed','false');
+    btn.dataset.place=name; btn.dataset.em=apEmoji; btn.dataset.desc=desc;
+    btn.setAttribute('onclick','pickPlace(this)');
+    btn.innerHTML=`<span class="em">${apEmoji}</span><span><span class="pn">${name}</span><span class="pd">${desc}</span></span>`;
+    tile.parentNode.insertBefore(btn,tile);
+    hideAddPlace();
+    pickPlace(btn);
+  }
+
+  /* ===== step2 ===== */
+  function pickPreset(btn){
+    document.querySelectorAll('#presets .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true');
+    document.getElementById('f-start').value = btn.dataset.s;
+    document.getElementById('f-end').value = btn.dataset.e;
+  }
+  function fmtDate(v){
+    const d=new Date(v+'T00:00'); if(isNaN(d)) return v;
+    return `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
+  }
+  function addSlot(){
+    const date=document.getElementById('f-date').value;
+    const s=document.getElementById('f-start').value, e=document.getElementById('f-end').value;
+    if(!date||!s||!e){ return; }
+    if(e<=s){ document.getElementById('f-end').style.borderColor='var(--shu)'; return; }
+    document.getElementById('f-end').style.borderColor='';
+    S.slots.push({date,s,e});
+    S.slots.sort((a,b)=> (a.date+a.s).localeCompare(b.date+b.s));
+    renderSlots(); renderPreview(); validate();
+  }
+  function rmSlot(i){ S.slots.splice(i,1); renderSlots(); renderPreview(); validate(); }
+  function renderSlots(){
+    const el=document.getElementById('slot-list');
+    el.innerHTML = S.slots.map((sl,i)=>
+      `<div class="slot"><span class="si">🗓</span><span class="st">${fmtDate(sl.date)}　${sl.s}–${sl.e}</span>
+       <button class="rm" onclick="rmSlot(${i})">削除</button></div>`).join('');
+  }
+
+  /* ===== step3 ===== */
+  function bumpCap(d){ S.capacity=Math.max(0,S.capacity+d);
+    document.getElementById('cap-val').textContent=S.capacity; renderPreview(); }
+  function setSoudan(btn){
+    S.soudan=!(btn.getAttribute('aria-pressed')==='true');
+    btn.setAttribute('aria-pressed',String(S.soudan));
+    if(S.soudan){ document.getElementById('f-price').value=''; S.price=null; }
+    renderPreview();
+  }
+  function clearReq(){
+    const v=document.getElementById('f-price').value;
+    S.price = v==='' ? null : +v;
+    if(S.price!==null){ S.soudan=false; document.getElementById('chip-soudan').setAttribute('aria-pressed','false'); }
+  }
+  function tg(btn){
+    const on=!(btn.getAttribute('aria-pressed')==='true');
+    btn.setAttribute('aria-pressed',String(on));
+    const label=btn.textContent.replace('✓','').trim();
+    S.equip = [...document.querySelectorAll('#equip .tg[aria-pressed="true"]')].map(b=>b.textContent.replace('✓','').trim());
+    renderPreview();
+  }
+  function tgCond(btn,phrase){
+    const on=!(btn.getAttribute('aria-pressed')==='true');
+    btn.setAttribute('aria-pressed',String(on));
+    const ta=document.getElementById('f-cond');
+    let t=ta.value;
+    if(on){ if(!t.includes(phrase)) t=(t?t.replace(/\s*$/,'')+' ':'')+phrase; }
+    else { t=t.replace(phrase,'').replace(/\s+/g,' ').trim(); }
+    ta.value=t; renderPreview();
+  }
+
+  /* ===== preview ===== */
+  function priceText(){
+    if(S.soudan||S.price===null) return {big:'応相談',small:''};
+    if(S.price===0) return {big:'無料',small:'／回'};
+    return {big:'¥'+S.price.toLocaleString(),small:'／回'};
+  }
+  function renderPreview(){
+    S.condText=document.getElementById('f-cond')?document.getElementById('f-cond').value:'';
+    document.getElementById('pv-em').textContent = S.em||'⛩️';
+    document.getElementById('pv-name').textContent = S.place ? S.place+'の空き枠' : '場所を選んでください';
+    // slots
+    const ps=document.getElementById('pv-slots');
+    if(S.slots.length){
+      ps.innerHTML=S.slots.slice(0,4).map(sl=>
+        `<div class="pv-slotline"><span class="i">🗓</span>${fmtDate(sl.date)} ${sl.s}–${sl.e}</div>`).join('')
+        + (S.slots.length>4?`<div class="pv-slotline" style="color:var(--matcha-ink)">ほか ${S.slots.length-4} 枠</div>`:'');
+    } else ps.innerHTML='<span class="pv-empty">日時はまだ追加されていません</span>';
+    // meta
+    const meta=[];
+    if(S.capacity>0) meta.push('～'+S.capacity+'名');
+    S.equip.forEach(e=>meta.push(e));
+    document.getElementById('pv-meta').innerHTML = meta.map(m=>`<span class="pv-tag">${m}</span>`).join('');
+    // price
+    const p=priceText();
+    document.getElementById('pv-price').innerHTML = `${p.big}<small>${p.small}</small>`;
+  }
+
+  /* ===== summary ===== */
+  function buildSummary(){
+    const p=priceText();
+    const slotTxt = S.slots.length? S.slots.map(s=>`${fmtDate(s.date)} ${s.s}–${s.e}`).join('<br>') : '—';
+    const rows=[
+      ['場所', S.place||'—'],
+      ['日時', slotTxt],
+      ['人数', S.capacity>0? '～'+S.capacity+'名':'—'],
+      ['ご利用料', p.big+(p.small||'')],
+      ['設備', S.equip.length? S.equip.join('・'):'—'],
+      ['お願い', S.condText? S.condText : '—'],
+    ];
+    document.getElementById('summary').innerHTML = rows.map(r=>
+      `<div class="sumrow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('');
+  }
+
+  /* ===== publish ===== */
+  function publish(){
+    const p=priceText();
+    document.getElementById('done-msg').innerHTML =
+      `<b>${S.place}</b>の空き枠を <b>${S.slots.length}</b> 枠、募集を開始しました。<br>申込が届いたら、ダッシュボードの「新着の申込」でお知らせします。`;
+    document.getElementById('done').hidden=false;
+  }
+
+  renderStep(); renderPreview();
+</script>

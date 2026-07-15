@@ -1,0 +1,381 @@
+<title>テラつなぎ｜申込の詳細と相談</title>
+<style>
+  /* ===== TOKENS（共通デザインシステム） ===== */
+  :root{
+    color-scheme:light dark;
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}}
+  :root[data-theme="light"]{
+    --washi:#f3ede0;--washi-2:#ede5d4;--card:#fbf8f1;--card-2:#f7f1e5;
+    --sumi:#2c2822;--sumi-soft:#5b5346;--sumi-faint:#8c8375;--line:#ddd2bd;--line-soft:#e7ddca;
+    --matcha:#6a774b;--matcha-ink:#4f5a35;--matcha-bg:#e6e8d5;
+    --shu:#b04a2f;--shu-ink:#8f3a24;--shu-bg:#f2ddd2;--kincha:#a8823f;--kincha-bg:#f0e6cf;
+    --ok:#4f7a4d;--ok-bg:#dfe9d8;--wait:#b3822a;--wait-bg:#f2e6c9;--off:#9a5a4a;--off-bg:#ecdcd4;
+    --shadow:0 1px 2px rgba(44,40,34,.05),0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg:0 4px 12px rgba(44,40,34,.10),0 18px 44px rgba(44,40,34,.12);}
+  :root[data-theme="dark"]{
+    --washi:#1c1a16;--washi-2:#171512;--card:#26231d;--card-2:#2c2822;
+    --sumi:#efe8da;--sumi-soft:#c1b8a6;--sumi-faint:#8f8676;--line:#3a352c;--line-soft:#332e26;
+    --matcha:#9aa876;--matcha-ink:#b6c391;--matcha-bg:#31382a;
+    --shu:#d9694a;--shu-ink:#e9906f;--shu-bg:#3a2820;--kincha:#cba861;--kincha-bg:#39311d;
+    --ok:#8fb27f;--ok-bg:#2b3626;--wait:#d5ad57;--wait-bg:#39311d;--off:#c98874;--off-bg:#382622;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);}
+
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--washi);color:var(--sumi);
+    font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  header.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--washi) 90%,transparent);
+    backdrop-filter:saturate(1.1) blur(8px);border-bottom:1px solid var(--line);}
+  .top-inner{max-width:1120px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:14px;}
+  .back{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:11px;
+    border:1px solid var(--line);background:var(--card);color:var(--sumi-soft);cursor:pointer;
+    font-family:var(--sans);font-size:15px;text-decoration:none;}
+  .back:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .seal{width:38px;height:38px;border-radius:10px;flex:none;
+    background:radial-gradient(120% 120% at 30% 20%,var(--shu),var(--shu-ink));
+    display:grid;place-items:center;color:#fbf3ea;font-family:var(--serif);font-size:20px;}
+  .brand-name{font-family:var(--serif);font-size:18px;letter-spacing:.04em;}
+  .top-spacer{flex:1;}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 22px 60px;}
+  .crumb{font-size:14px;color:var(--sumi-faint);margin-bottom:14px;}
+  .crumb b{color:var(--sumi-soft);font-weight:600;}
+
+  .cols{display:grid;grid-template-columns:390px 1fr;gap:24px;align-items:start;}
+
+  /* ===== DETAIL CARD ===== */
+  .detail{position:sticky;top:78px;background:var(--card);border:1px solid var(--line-soft);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .d-top{padding:20px 20px 18px;display:flex;gap:14px;align-items:flex-start;}
+  .d-cat{width:52px;height:52px;border-radius:13px;flex:none;display:grid;place-items:center;
+    font-size:27px;background:var(--matcha-bg);}
+  .d-title{font-family:var(--serif);font-size:20px;line-height:1.3;}
+  .d-org{font-size:14px;color:var(--sumi-soft);margin-top:3px;}
+  .status{font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:20px;white-space:nowrap;letter-spacing:.03em;}
+  .s-wait{background:var(--wait-bg);color:var(--wait);}
+  .s-ok{background:var(--ok-bg);color:var(--ok);}
+  .s-off{background:var(--off-bg);color:var(--off);}
+  .d-meta{padding:2px 20px 18px;display:flex;flex-direction:column;gap:1px;}
+  .d-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:15px;}
+  .d-row:last-child{border-bottom:0;}
+  .d-row .k{width:78px;flex:none;color:var(--sumi-faint);font-size:14px;}
+  .d-row .v{font-weight:600;font-variant-numeric:tabular-nums;}
+  .d-content{margin:0 20px 18px;padding:14px 15px;background:var(--card-2);border-radius:11px;
+    font-size:14.5px;line-height:1.7;color:var(--sumi-soft);}
+  .d-content .lbl{font-size:12px;letter-spacing:.1em;color:var(--sumi-faint);text-transform:uppercase;margin-bottom:6px;}
+  .d-actions{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;}
+  .btn{appearance:none;cursor:pointer;font-family:var(--sans);font-size:16px;font-weight:600;
+    padding:13px 20px;border-radius:11px;border:1.5px solid transparent;display:inline-flex;
+    align-items:center;justify-content:center;gap:9px;letter-spacing:.02em;}
+  .btn-ok{background:var(--matcha);color:#f5f2e7;}
+  .btn-ok:hover{filter:brightness(1.06);}
+  .btn-line{background:var(--card);border-color:var(--line);color:var(--sumi);}
+  .btn-line:hover{border-color:var(--matcha);color:var(--matcha-ink);}
+  .btn-off{background:none;color:var(--sumi-faint);font-size:14.5px;padding:8px;}
+  .btn-off:hover{color:var(--off);}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;}
+
+  /* ===== THREAD ===== */
+  .thread-card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);
+    box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;}
+  .thread-h{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+  .thread-h .t{font-family:var(--serif);font-size:18px;}
+  .thread-h .mk{width:7px;height:20px;border-radius:2px;background:var(--kincha);}
+  .who-legend{margin-left:auto;display:flex;gap:12px;font-size:12px;color:var(--sumi-faint);}
+  .who-legend span{display:flex;align-items:center;gap:5px;}
+  .lg{width:10px;height:10px;border-radius:3px;}
+
+  .thread{padding:20px;display:flex;flex-direction:column;gap:16px;background:var(--washi-2);}
+  .daydiv{text-align:center;font-size:12.5px;color:var(--sumi-faint);margin:2px 0;}
+  .daydiv span{background:var(--card);padding:4px 14px;border-radius:14px;border:1px solid var(--line-soft);}
+
+  .msg{display:flex;gap:11px;max-width:82%;}
+  .msg .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;
+    font-family:var(--serif);font-size:17px;color:#f4f1e6;}
+  .msg .bubble{padding:12px 15px;border-radius:14px;font-size:15px;line-height:1.68;}
+  .msg .nm{font-size:12.5px;color:var(--sumi-faint);margin-bottom:5px;display:flex;align-items:center;gap:7px;}
+  .msg .nm .rl{font-size:11px;padding:1px 7px;border-radius:10px;font-weight:600;}
+  .msg .time{font-size:11.5px;color:var(--sumi-faint);margin-top:5px;}
+
+  /* 企画者（左） */
+  .msg.org .av{background:linear-gradient(150deg,#8a7f6a,#6f6553);}
+  .msg.org .bubble{background:var(--card);border:1px solid var(--line-soft);border-top-left-radius:5px;}
+  .msg.org .rl{background:var(--washi-2);color:var(--sumi-soft);}
+
+  /* 寺（自分・右） */
+  .msg.temple{margin-left:auto;flex-direction:row-reverse;}
+  .msg.temple .av{background:linear-gradient(150deg,var(--matcha),var(--matcha-ink));}
+  .msg.temple .bubble{background:var(--matcha-bg);border:1px solid transparent;border-top-right-radius:5px;color:var(--sumi);}
+  .msg.temple .nm{flex-direction:row-reverse;}
+  .msg.temple .time{text-align:right;}
+  .msg.temple .rl{background:var(--matcha);color:#f4f1e6;}
+
+  /* 運営（仲介・全幅の帯） */
+  .msg.ops{max-width:100%;flex-direction:column;gap:0;align-self:stretch;}
+  .ops-band{background:var(--kincha-bg);border:1px solid color-mix(in srgb,var(--kincha) 40%,transparent);
+    border-radius:13px;padding:13px 16px;}
+  .ops-head{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+  .ops-badge{width:26px;height:26px;border-radius:8px;background:var(--kincha);color:#fff;
+    display:grid;place-items:center;font-size:14px;flex:none;}
+  .ops-name{font-size:13px;font-weight:700;color:var(--kincha);}
+  .ops-tag{font-size:11px;color:var(--sumi-faint);}
+  .ops-body{font-size:14.5px;line-height:1.7;color:var(--sumi-soft);}
+  .ops-time{font-size:11.5px;color:var(--sumi-faint);margin-top:6px;}
+
+  /* ===== COMPOSER ===== */
+  .composer{border-top:1px solid var(--line);padding:14px 20px 18px;background:var(--card);}
+  .quick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .qchip{appearance:none;cursor:pointer;font-family:var(--sans);font-size:14px;padding:8px 14px;
+    border-radius:18px;border:1.5px solid var(--line);background:var(--card);color:var(--sumi-soft);}
+  .qchip:hover{border-color:var(--matcha);color:var(--matcha-ink);background:var(--matcha-bg);}
+  .cbox{display:flex;gap:11px;align-items:flex-end;}
+  .cbox textarea{flex:1;font-family:var(--sans);font-size:16px;color:var(--sumi);background:var(--card-2);
+    border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:52px;max-height:160px;
+    resize:none;line-height:1.6;}
+  .cbox textarea:focus{outline:none;border-color:var(--matcha);}
+  .send{width:56px;height:52px;border-radius:12px;border:0;flex:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--shu),var(--shu-ink));color:#fbf3ea;font-size:22px;
+    box-shadow:var(--shadow);}
+  .send:hover{filter:brightness(1.05);} .send[disabled]{opacity:.45;cursor:not-allowed;}
+  .chelp{font-size:12px;color:var(--sumi-faint);margin-top:8px;}
+
+  /* toast */
+  .toast-host{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:90;
+    display:flex;flex-direction:column;gap:10px;align-items:center;}
+  .toast{background:var(--sumi);color:var(--washi);padding:13px 20px;border-radius:12px;font-size:15px;
+    box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:11px;animation:rise .3s ease;}
+  .toast .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;
+    background:var(--matcha);color:#fff;flex:none;}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+  :focus-visible{outline:3px solid var(--kincha);outline-offset:2px;border-radius:6px;}
+
+  @media (max-width:900px){
+    .cols{grid-template-columns:1fr;}
+    .detail{position:static;}
+    .msg{max-width:92%;}
+  }
+  @media (max-width:560px){
+    body{font-size:16px;}
+    .brand-name{display:none;}
+    .who-legend{display:none;}
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <a class="back" href="#" onclick="return false">‹ ダッシュボード</a>
+    <div class="top-spacer"></div>
+    <div class="seal">寺</div>
+    <div class="brand-name">テラつなぎ</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="crumb">ダッシュボード › 新着の申込 › <b>朝の寺ヨガ教室</b></div>
+
+  <div class="cols">
+    <!-- DETAIL -->
+    <aside class="detail">
+      <div class="d-top">
+        <div class="d-cat">🧘</div>
+        <div style="flex:1;min-width:0">
+          <div class="d-title">朝の寺ヨガ教室</div>
+          <div class="d-org">みどりヨガスタジオ<br>田村 佳奈 さん</div>
+        </div>
+        <div class="status s-wait" id="d-status">調整中</div>
+      </div>
+      <div class="d-meta">
+        <div class="d-row"><span class="k">場所</span><span class="v">本堂</span></div>
+        <div class="d-row"><span class="k">希望日時</span><span class="v">8/3(日) 7:00–8:30</span></div>
+        <div class="d-row"><span class="k">人数</span><span class="v">15名</span></div>
+        <div class="d-row"><span class="k">申込日</span><span class="v">2026/7/14</span></div>
+        <div class="d-row"><span class="k">利用料</span><span class="v">応相談</span></div>
+      </div>
+      <div class="d-content">
+        <div class="lbl">企画内容</div>
+        静かな朝の本堂で呼吸を整えるヨガを行います。マットは各自持参、音楽は流さず声かけのみで進めます。月1回の定期開催を希望しています。
+      </div>
+      <div class="d-actions">
+        <button class="btn btn-ok" id="btn-approve" onclick="approve()">✓ この申込を承認する</button>
+        <button class="btn btn-line" onclick="focusComposer()">💬 下で相談する</button>
+        <button class="btn btn-off" onclick="decline()">この申込を辞退する</button>
+      </div>
+    </aside>
+
+    <!-- THREAD -->
+    <section class="thread-card">
+      <div class="thread-h">
+        <span class="mk"></span><span class="t">相談スレッド</span>
+        <div class="who-legend">
+          <span><i class="lg" style="background:var(--matcha)"></i>お寺</span>
+          <span><i class="lg" style="background:#8a7f6a"></i>企画者</span>
+          <span><i class="lg" style="background:var(--kincha)"></i>運営</span>
+        </div>
+      </div>
+
+      <div class="thread" id="thread">
+        <div class="daydiv"><span>7月14日(月)</span></div>
+
+        <!-- 運営 intro -->
+        <div class="msg ops">
+          <div class="ops-band">
+            <div class="ops-head">
+              <span class="ops-badge">✿</span>
+              <span class="ops-name">テラつなぎ運営</span>
+              <span class="ops-tag">担当：佐藤（お寺サポート）</span>
+            </div>
+            <div class="ops-body">この度はお申込みが届きました。お寺様と企画者様の間に運営が入ってやりとりをお手伝いします。ご不明な点や条件のご相談は、いつでもこのスレッドへお書きください。難しい調整は運営が代わって進めます。</div>
+            <div class="ops-time">7:12</div>
+          </div>
+        </div>
+
+        <!-- 企画者 -->
+        <div class="msg org">
+          <div class="av">田</div>
+          <div>
+            <div class="nm">田村 佳奈 <span class="rl">企画者</span></div>
+            <div class="bubble">はじめまして、みどりヨガスタジオの田村と申します。静かな朝の本堂で15名ほどのヨガ教室を開かせていただけないかと思い、お申込みしました。マットは各自持参、音楽も流しません。まずは8月3日(日)の朝で相談できればと考えています。</div>
+            <div class="time">9:40</div>
+          </div>
+        </div>
+
+        <!-- 寺 -->
+        <div class="msg temple">
+          <div class="av">妙</div>
+          <div>
+            <div class="nm">妙覚寺（ご住職） <span class="rl">お寺</span></div>
+            <div class="bubble">ご丁寧にありがとうございます。本堂は朝7時から開けられます。ひとつだけ、堂内は土足厳禁ですので、靴下または素足でお願いできますでしょうか。</div>
+            <div class="time">11:20</div>
+          </div>
+        </div>
+
+        <!-- 企画者 -->
+        <div class="msg org">
+          <div class="av">田</div>
+          <div>
+            <div class="nm">田村 佳奈 <span class="rl">企画者</span></div>
+            <div class="bubble">もちろんです。参加者には素足または靴下でご案内します。畳を傷めないよう十分気をつけます。ありがとうございます。</div>
+            <div class="time">12:05</div>
+          </div>
+        </div>
+
+        <!-- 運営 補足 -->
+        <div class="msg ops">
+          <div class="ops-band">
+            <div class="ops-head">
+              <span class="ops-badge">✿</span>
+              <span class="ops-name">テラつなぎ運営</span>
+              <span class="ops-tag">担当：佐藤</span>
+            </div>
+            <div class="ops-body">ありがとうございます。当日の鍵の受け渡しや受付は、ご希望であれば運営スタッフが立ち会うこともできます。ご住職のご負担が少ない形で進めますので、お気軽にお申し付けください。この内容でよろしければ「承認する」を押していただけます。</div>
+            <div class="ops-time">13:30</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPOSER -->
+      <div class="composer">
+        <div class="quick" id="quick">
+          <button class="qchip" onclick="quick('この内容で進めていただいて大丈夫です。')">この内容でOK</button>
+          <button class="qchip" onclick="quick('日程を少し相談させてください。')">日程を相談したい</button>
+          <button class="qchip" onclick="quick('当日の立ち会いをお願いできますか。')">運営に立ち会い依頼</button>
+          <button class="qchip" onclick="quick('もう少し詳しく教えていただけますか。')">詳しく聞きたい</button>
+        </div>
+        <div class="cbox">
+          <textarea id="msg" placeholder="メッセージを入力…（上のボタンから選ぶこともできます）" oninput="autresize(this);toggleSend()"></textarea>
+          <button class="send" id="send" onclick="send()" disabled aria-label="送信">➤</button>
+        </div>
+        <div class="chelp">お寺として返信します。送信すると企画者と運営の両方に届きます。</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast-host" id="toasts" aria-live="polite"></div>
+
+<script>
+  const thread=document.getElementById('thread');
+  function now(){ const d=new Date(); return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`; }
+
+  function autresize(t){ t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,160)+'px'; }
+  function toggleSend(){ document.getElementById('send').disabled = document.getElementById('msg').value.trim()===''; }
+  function quick(text){
+    const m=document.getElementById('msg');
+    m.value = m.value ? m.value.replace(/\s*$/,'')+' '+text : text;
+    autresize(m); toggleSend(); m.focus();
+  }
+  function focusComposer(){ document.getElementById('msg').focus(); document.getElementById('msg').scrollIntoView({behavior:'smooth',block:'center'}); }
+
+  function addTemple(text){
+    const el=document.createElement('div');
+    el.className='msg temple';
+    el.innerHTML=`<div class="av">妙</div><div>
+      <div class="nm">妙覚寺（ご住職） <span class="rl">お寺</span></div>
+      <div class="bubble"></div><div class="time">${now()}</div></div>`;
+    el.querySelector('.bubble').textContent=text;
+    thread.appendChild(el);
+    el.scrollIntoView({behavior:'smooth',block:'end'});
+  }
+  function addOps(text){
+    const el=document.createElement('div');
+    el.className='msg ops';
+    el.innerHTML=`<div class="ops-band"><div class="ops-head">
+      <span class="ops-badge">✿</span><span class="ops-name">テラつなぎ運営</span><span class="ops-tag">担当：佐藤</span></div>
+      <div class="ops-body"></div><div class="ops-time">${now()}</div></div>`;
+    el.querySelector('.ops-body').textContent=text;
+    thread.appendChild(el);
+    el.scrollIntoView({behavior:'smooth',block:'end'});
+  }
+  function send(){
+    const m=document.getElementById('msg'); const t=m.value.trim(); if(!t) return;
+    addTemple(t); m.value=''; autresize(m); toggleSend();
+    toast('メッセージを送信しました');
+  }
+
+  function setStatus(cls,label){
+    const s=document.getElementById('d-status'); s.className='status '+cls; s.textContent=label;
+  }
+  function approve(){
+    setStatus('s-ok','承認済み');
+    document.getElementById('btn-approve').disabled=true;
+    document.getElementById('btn-approve').textContent='✓ 承認しました';
+    addOps('ご住職が申込を承認しました。企画者様へ通知し、成立イベントとしてカレンダーに登録します。当日までの準備は運営がサポートいたします。');
+    toast('申込を承認しました');
+  }
+  function decline(){
+    setStatus('s-off','辞退');
+    addOps('ご住職が今回の申込を見送られました。企画者様へは運営から丁重にお伝えします。またの機会にお繋ぎできればと思います。');
+    toast('申込を辞退しました');
+  }
+
+  function toast(msg){
+    const host=document.getElementById('toasts');
+    const el=document.createElement('div');
+    el.className='toast';
+    el.innerHTML='<span class="ic">✓</span><span>'+msg+'</span>';
+    host.appendChild(el);
+    setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},2400);
+  }
+</script>

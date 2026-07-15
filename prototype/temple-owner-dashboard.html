@@ -1,0 +1,651 @@
+<title>テラつなぎ｜寺院ダッシュボード</title>
+<style>
+  /* ============ TOKENS ============ */
+  :root {
+    color-scheme: light dark;
+    /* palette — 和紙 / 墨 / 抹茶 / 朱 / 金茶 */
+    --washi:      #f3ede0;   /* paper ground */
+    --washi-2:    #ede5d4;   /* recessed ground */
+    --card:       #fbf8f1;   /* raised surface */
+    --card-2:     #f7f1e5;
+    --sumi:       #2c2822;   /* ink — primary text */
+    --sumi-soft:  #5b5346;   /* secondary text */
+    --sumi-faint: #8c8375;   /* tertiary / captions */
+    --line:       #ddd2bd;   /* hairlines */
+    --line-soft:  #e7ddca;
+    --matcha:     #6a774b;   /* brand accent (moss tea) */
+    --matcha-ink: #4f5a35;   /* accent text on light */
+    --matcha-bg:  #e6e8d5;   /* accent wash */
+    --shu:        #b04a2f;   /* vermilion — highlight/CTA */
+    --shu-ink:    #8f3a24;
+    --shu-bg:     #f2ddd2;
+    --kincha:     #a8823f;   /* gold-brown */
+    /* semantic (distinct from accent) */
+    --ok:         #4f7a4d;
+    --ok-bg:      #dfe9d8;
+    --wait:       #b3822a;
+    --wait-bg:    #f2e6c9;
+    --off:        #9a5a4a;
+    --off-bg:     #ecdcd4;
+    /* type */
+    --serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "MS PMincho", serif;
+    --sans:  "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Meiryo", "Noto Sans JP", sans-serif;
+    --shadow: 0 1px 2px rgba(44,40,34,.05), 0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg: 0 4px 12px rgba(44,40,34,.10), 0 18px 44px rgba(44,40,34,.12);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --washi:#1c1a16; --washi-2:#171512; --card:#26231d; --card-2:#2c2822;
+      --sumi:#efe8da; --sumi-soft:#c1b8a6; --sumi-faint:#8f8676;
+      --line:#3a352c; --line-soft:#332e26;
+      --matcha:#9aa876; --matcha-ink:#b6c391; --matcha-bg:#31382a;
+      --shu:#d9694a; --shu-ink:#e9906f; --shu-bg:#3a2820;
+      --kincha:#cba861;
+      --ok:#8fb27f; --ok-bg:#2b3626; --wait:#d5ad57; --wait-bg:#39311d; --off:#c98874; --off-bg:#382622;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,.4), 0 18px 44px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="light"] {
+    --washi:#f3ede0; --washi-2:#ede5d4; --card:#fbf8f1; --card-2:#f7f1e5;
+    --sumi:#2c2822; --sumi-soft:#5b5346; --sumi-faint:#8c8375;
+    --line:#ddd2bd; --line-soft:#e7ddca;
+    --matcha:#6a774b; --matcha-ink:#4f5a35; --matcha-bg:#e6e8d5;
+    --shu:#b04a2f; --shu-ink:#8f3a24; --shu-bg:#f2ddd2; --kincha:#a8823f;
+    --ok:#4f7a4d; --ok-bg:#dfe9d8; --wait:#b3822a; --wait-bg:#f2e6c9; --off:#9a5a4a; --off-bg:#ecdcd4;
+    --shadow: 0 1px 2px rgba(44,40,34,.05), 0 6px 20px rgba(44,40,34,.06);
+    --shadow-lg: 0 4px 12px rgba(44,40,34,.10), 0 18px 44px rgba(44,40,34,.12);
+  }
+  :root[data-theme="dark"] {
+    --washi:#1c1a16; --washi-2:#171512; --card:#26231d; --card-2:#2c2822;
+    --sumi:#efe8da; --sumi-soft:#c1b8a6; --sumi-faint:#8f8676;
+    --line:#3a352c; --line-soft:#332e26;
+    --matcha:#9aa876; --matcha-ink:#b6c391; --matcha-bg:#31382a;
+    --shu:#d9694a; --shu-ink:#e9906f; --shu-bg:#3a2820; --kincha:#cba861;
+    --ok:#8fb27f; --ok-bg:#2b3626; --wait:#d5ad57; --wait-bg:#39311d; --off:#c98874; --off-bg:#382622;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,.4), 0 18px 44px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--washi); color: var(--sumi);
+    font-family: var(--sans); font-size: 17px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px 80px; }
+  h1,h2,h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ============ HEADER ============ */
+  header.top {
+    position: sticky; top: 0; z-index: 40;
+    background: color-mix(in srgb, var(--washi) 88%, transparent);
+    backdrop-filter: saturate(1.1) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .top-inner { max-width: 1180px; margin: 0 auto; padding: 12px 22px;
+    display: flex; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .seal {
+    width: 44px; height: 44px; border-radius: 11px; flex: none;
+    background: radial-gradient(120% 120% at 30% 20%, var(--shu) 0%, var(--shu-ink) 100%);
+    display: grid; place-items: center; color: #fbf3ea;
+    font-family: var(--serif); font-size: 24px; font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+  }
+  .brand-name { font-family: var(--serif); font-size: 21px; letter-spacing: .04em; line-height: 1.1; }
+  .brand-sub { font-size: 12px; color: var(--sumi-faint); letter-spacing: .12em; }
+  .top-spacer { flex: 1; }
+  .top-actions { display: flex; align-items: center; gap: 10px; }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 11px; border: 1px solid var(--line);
+    background: var(--card); color: var(--sumi-soft); cursor: pointer;
+    display: grid; place-items: center; font-size: 19px; position: relative;
+  }
+  .icon-btn:hover { border-color: var(--matcha); color: var(--matcha-ink); }
+  .badge-dot {
+    position: absolute; top: 7px; right: 8px; width: 9px; height: 9px;
+    background: var(--shu); border-radius: 50%; border: 2px solid var(--card);
+  }
+  .who { display: flex; align-items: center; gap: 10px; padding-left: 6px; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%; flex: none;
+    background: linear-gradient(150deg, var(--matcha), var(--matcha-ink));
+    color: #f4f1e6; display: grid; place-items: center;
+    font-family: var(--serif); font-size: 18px;
+  }
+  .who .nm { font-size: 14px; line-height: 1.2; }
+  .who .rl { font-size: 12px; color: var(--sumi-faint); }
+
+  /* ============ GREETING + CTA ============ */
+  .hello { display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap; margin: 28px 0 20px; }
+  .hello h1 { font-family: var(--serif); font-size: 30px; letter-spacing: .02em; }
+  .hello .date { color: var(--sumi-soft); font-size: 15px; margin-top: 4px; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 11px;
+    padding: 15px 24px; border-radius: 13px; border: 0; cursor: pointer;
+    background: linear-gradient(135deg, var(--shu), var(--shu-ink));
+    color: #fbf3ea; font-family: var(--sans); font-size: 17px; font-weight: 600;
+    box-shadow: var(--shadow-lg); letter-spacing: .02em;
+  }
+  .cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .cta:active { transform: translateY(0); }
+  .cta .plus { font-size: 22px; line-height: 0; margin-top: -2px; }
+
+  /* ============ STAT TILES ============ */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+  .tile {
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
+    padding: 18px 18px 16px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .tile::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--stripe, var(--matcha)); }
+  .tile .lbl { font-size: 13.5px; color: var(--sumi-soft); letter-spacing: .04em; }
+  .tile .big { font-family: var(--serif); font-size: 38px; line-height: 1.1; margin-top: 6px; }
+  .tile .big small { font-size: 15px; font-family: var(--sans); color: var(--sumi-faint); margin-left: 3px; }
+  .tile .trend { font-size: 12.5px; color: var(--sumi-faint); margin-top: 2px; }
+
+  /* ============ LAYOUT ============ */
+  .grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 22px; align-items: start; }
+  .panel {
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .panel-head { padding: 18px 20px 0; }
+  .panel-title { font-family: var(--serif); font-size: 19px; letter-spacing: .03em; display:flex; align-items:center; gap:9px;}
+  .panel-title .mk { width:7px; height:20px; border-radius:2px; background: var(--matcha); display:inline-block; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; padding: 14px 20px 0; border-bottom: 1px solid var(--line); }
+  .tab {
+    appearance: none; border: 0; background: none; cursor: pointer;
+    font-family: var(--sans); font-size: 15.5px; color: var(--sumi-soft);
+    padding: 11px 15px 13px; border-radius: 10px 10px 0 0; position: relative;
+    display: flex; align-items: center; gap: 8px; margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--sumi); background: var(--card-2); }
+  .tab[aria-selected="true"] { color: var(--sumi); font-weight: 600; }
+  .tab[aria-selected="true"]::after {
+    content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px;
+    background: var(--shu); border-radius: 3px;
+  }
+  .pill-count {
+    font-size: 12.5px; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 11px;
+    background: var(--shu-bg); color: var(--shu-ink); display: inline-grid; place-items: center;
+    font-variant-numeric: tabular-nums; font-weight: 600;
+  }
+  .tab[aria-selected="false"] .pill-count { background: var(--washi-2); color: var(--sumi-faint); }
+
+  .tabpanel { padding: 6px 20px 20px; }
+  .tabpanel[hidden] { display: none; }
+
+  /* ============ APPLICATION CARDS ============ */
+  .app { border: 1px solid var(--line-soft); border-radius: 13px; background: var(--card-2);
+    padding: 16px 17px; margin-top: 14px; transition: box-shadow .2s, border-color .2s; }
+  .app:hover { box-shadow: var(--shadow); border-color: var(--line); }
+  .app.done { opacity: .62; }
+  .app-top { display: flex; align-items: flex-start; gap: 12px; }
+  .app-cat {
+    width: 46px; height: 46px; border-radius: 12px; flex: none; display: grid; place-items: center;
+    font-size: 23px; background: var(--matcha-bg);
+  }
+  .app-h { flex: 1; min-width: 0; }
+  .app-title { font-family: var(--serif); font-size: 18.5px; line-height: 1.3; }
+  .app-org { font-size: 13.5px; color: var(--sumi-soft); margin-top: 2px; }
+  .status {
+    font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; white-space: nowrap;
+    letter-spacing: .03em;
+  }
+  .s-new  { background: var(--shu-bg);  color: var(--shu-ink); }
+  .s-wait { background: var(--wait-bg); color: var(--wait); }
+  .s-ok   { background: var(--ok-bg);   color: var(--ok); }
+  .s-off  { background: var(--off-bg);  color: var(--off); }
+  .app-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 4px; padding-left: 58px; }
+  .meta-i { display: flex; align-items: center; gap: 7px; font-size: 14px; color: var(--sumi-soft); }
+  .meta-i b { color: var(--sumi); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .meta-i .gi { color: var(--matcha-ink); font-size: 15px; }
+  .app-note { padding-left: 58px; font-size: 14px; color: var(--sumi-soft); margin-top: 6px; line-height: 1.6; }
+  .app-actions { display: flex; gap: 10px; margin-top: 14px; padding-left: 58px; flex-wrap: wrap; }
+  .btn {
+    appearance: none; cursor: pointer; font-family: var(--sans); font-size: 15px; font-weight: 600;
+    padding: 11px 18px; border-radius: 10px; border: 1px solid transparent; display: inline-flex;
+    align-items: center; gap: 8px; letter-spacing: .02em;
+  }
+  .btn-ok { background: var(--matcha); color: #f5f2e7; }
+  .btn-ok:hover { filter: brightness(1.06); }
+  .btn-talk { background: var(--card); border-color: var(--line); color: var(--sumi); }
+  .btn-talk:hover { border-color: var(--matcha); color: var(--matcha-ink); }
+  .btn-off { background: none; color: var(--sumi-faint); padding: 11px 12px; }
+  .btn-off:hover { color: var(--off); }
+  .resolved-tag { padding-left: 58px; margin-top: 12px; font-size: 14px; color: var(--sumi-soft); display:flex; align-items:center; gap:8px;}
+
+  /* ============ SPACE ROWS ============ */
+  .space { display: flex; align-items: center; gap: 14px; padding: 15px 4px;
+    border-bottom: 1px solid var(--line-soft); }
+  .space:last-child { border-bottom: 0; }
+  .sp-th { width: 52px; height: 52px; border-radius: 12px; flex: none; display:grid; place-items:center;
+    font-size: 25px; background: var(--washi-2); border: 1px solid var(--line-soft); }
+  .sp-body { flex: 1; min-width: 0; }
+  .sp-name { font-size: 16.5px; font-weight: 600; }
+  .sp-desc { font-size: 13.5px; color: var(--sumi-soft); margin-top: 2px; }
+  .toggle {
+    position: relative; width: 52px; height: 30px; border-radius: 16px; border: 0; cursor: pointer;
+    background: var(--line); transition: background .2s; flex: none;
+  }
+  .toggle[aria-pressed="true"] { background: var(--matcha); }
+  .toggle::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px;
+    border-radius:50%; background:#fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .toggle[aria-pressed="true"]::after { transform: translateX(22px); }
+  .sp-state { font-size: 12.5px; color: var(--sumi-faint); width: 62px; text-align: right; }
+
+  /* ============ CALENDAR ============ */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 14px; }
+  .cal-title { font-family: var(--serif); font-size: 17px; }
+  .cal-nav { display: flex; gap: 6px; }
+  .cal-nav button { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--card); cursor: pointer; color: var(--sumi-soft); font-size: 15px; }
+  .cal-nav button:hover { border-color: var(--matcha); color: var(--matcha-ink); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .cal-dow { text-align: center; font-size: 12px; color: var(--sumi-faint); padding: 2px 0 6px; }
+  .cal-dow.sun { color: var(--off); } .cal-dow.sat { color: var(--matcha-ink); }
+  .cal-cell { aspect-ratio: 1 / 1; border-radius: 9px; padding: 5px 6px; font-size: 13.5px;
+    border: 1px solid transparent; position: relative; font-variant-numeric: tabular-nums; }
+  .cal-cell.pad { visibility: hidden; }
+  .cal-cell.has { background: var(--card-2); border-color: var(--line-soft); }
+  .cal-cell.today { border-color: var(--shu); }
+  .cal-cell.today .d { color: var(--shu-ink); font-weight: 700; }
+  .cal-ev { margin-top: 3px; font-size: 10.5px; line-height: 1.3; padding: 2px 4px; border-radius: 5px;
+    background: var(--matcha-bg); color: var(--matcha-ink); overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; }
+  .cal-ev.shu { background: var(--shu-bg); color: var(--shu-ink); }
+  .cal-legend { display: flex; gap: 16px; margin-top: 14px; font-size: 12.5px; color: var(--sumi-soft); flex-wrap: wrap; }
+  .cal-legend span { display: flex; align-items: center; gap: 6px; }
+  .dotc { width: 10px; height: 10px; border-radius: 3px; }
+
+  .panel + .panel { margin-top: 22px; }
+
+  /* ============ TOAST ============ */
+  .toast-host { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    z-index: 90; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .toast {
+    background: var(--sumi); color: var(--washi); padding: 13px 20px; border-radius: 12px;
+    font-size: 15px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 11px;
+    animation: rise .3s ease; max-width: 90vw;
+  }
+  .toast .ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 14px; background: var(--matcha); color: #fff; flex: none; }
+  .toast.warn .ic { background: var(--wait); }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  :focus-visible { outline: 3px solid var(--kincha); outline-offset: 2px; border-radius: 6px; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 920px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .brand-sub { display: none; }
+    .who .nm, .who .rl { display: none; }
+    .app-meta, .app-note, .app-actions, .resolved-tag { padding-left: 0; }
+    .hello h1 { font-size: 25px; }
+    .cta { width: 100%; justify-content: center; }
+  }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="seal">寺</div>
+      <div>
+        <div class="brand-name">テラつなぎ</div>
+        <div class="brand-sub">SPACE&nbsp;×&nbsp;PLAN&nbsp;MATCHING</div>
+      </div>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="top-actions">
+      <button class="icon-btn" aria-label="お知らせ" title="お知らせ">🔔<span class="badge-dot"></span></button>
+      <button class="icon-btn" aria-label="相談窓口" title="運営に相談する">💬</button>
+      <div class="who">
+        <div class="avatar">妙</div>
+        <div>
+          <div class="nm">妙覚寺</div>
+          <div class="rl">ご住職</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hello">
+    <div>
+      <h1>おかえりなさいませ、ご住職</h1>
+      <div class="date">2026年7月15日（火）・新しい申込が <b>3件</b> 届いています</div>
+    </div>
+    <button class="cta" onclick="toast('掲載フォームへ進みます（プロトタイプ）','ok')">
+      <span class="plus">＋</span>新しい空き枠を掲載する
+    </button>
+  </div>
+
+  <!-- STAT TILES -->
+  <div class="stats">
+    <div class="tile" style="--stripe:var(--matcha)">
+      <div class="lbl">掲載中スペース</div>
+      <div class="big num" id="stat-spaces">4<small>件</small></div>
+      <div class="trend">本堂・庭園・客殿・和室</div>
+    </div>
+    <div class="tile" style="--stripe:var(--shu)">
+      <div class="lbl">新着の申込</div>
+      <div class="big num" id="stat-new">3<small>件</small></div>
+      <div class="trend">要ご確認</div>
+    </div>
+    <div class="tile" style="--stripe:var(--wait)">
+      <div class="lbl">調整中</div>
+      <div class="big num" id="stat-wait">1<small>件</small></div>
+      <div class="trend">日程を相談中</div>
+    </div>
+    <div class="tile" style="--stripe:var(--kincha)">
+      <div class="lbl">今月の成立イベント</div>
+      <div class="big num">6<small>件</small></div>
+      <div class="trend">先月比 ＋2件</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: applications / spaces -->
+    <div>
+      <div class="panel">
+        <div class="tabs" role="tablist" aria-label="管理タブ">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="tp-apps" id="t-apps" onclick="switchTab('apps')">
+            新着の申込 <span class="pill-count" id="cnt-apps">3</span>
+          </button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="tp-spaces" id="t-spaces" onclick="switchTab('spaces')">
+            掲載中スペース <span class="pill-count">4</span>
+          </button>
+        </div>
+
+        <!-- TAB: applications -->
+        <div class="tabpanel" id="tp-apps" role="tabpanel" aria-labelledby="t-apps">
+
+          <div class="app" data-app id="app-yoga">
+            <div class="app-top">
+              <div class="app-cat">🧘</div>
+              <div class="app-h">
+                <div class="app-title">朝の寺ヨガ教室</div>
+                <div class="app-org">みどりヨガスタジオ・田村 佳奈 さん</div>
+              </div>
+              <div class="status s-new" data-status>新着</div>
+            </div>
+            <div class="app-meta">
+              <span class="meta-i"><span class="gi">📍</span>希望スペース：<b>本堂</b></span>
+              <span class="meta-i"><span class="gi">🗓</span>希望日時：<b>8/3(日) 7:00–8:30</b></span>
+              <span class="meta-i"><span class="gi">👥</span>定員：<b>15名</b></span>
+            </div>
+            <div class="app-note">静かな朝の本堂で呼吸を整えるヨガを。マットは持参、音楽なし・声かけのみで進行します。</div>
+            <div class="app-actions" data-actions>
+              <button class="btn btn-ok"   onclick="approve(this,'朝の寺ヨガ教室')">✓ 承認する</button>
+              <button class="btn btn-talk" onclick="discuss(this,'朝の寺ヨガ教室')">💬 詳細を相談</button>
+              <button class="btn btn-off"  onclick="decline(this)">辞退</button>
+            </div>
+          </div>
+
+          <div class="app" data-app id="app-wagashi">
+            <div class="app-top">
+              <div class="app-cat">🍡</div>
+              <div class="app-h">
+                <div class="app-title">和菓子づくりワークショップ</div>
+                <div class="app-org">季なごみ工房・清水 誠 さん</div>
+              </div>
+              <div class="status s-new" data-status>新着</div>
+            </div>
+            <div class="app-meta">
+              <span class="meta-i"><span class="gi">📍</span>希望スペース：<b>客殿（和室）</b></span>
+              <span class="meta-i"><span class="gi">🗓</span>希望日時：<b>8/10(日) 13:00–15:30</b></span>
+              <span class="meta-i"><span class="gi">👥</span>定員：<b>12名</b></span>
+            </div>
+            <div class="app-note">季節の上生菓子を親子で手づくり。火は使わず、後片付けまで責任を持って行います。</div>
+            <div class="app-actions" data-actions>
+              <button class="btn btn-ok"   onclick="approve(this,'和菓子づくりワークショップ')">✓ 承認する</button>
+              <button class="btn btn-talk" onclick="discuss(this,'和菓子づくりワークショップ')">💬 詳細を相談</button>
+              <button class="btn btn-off"  onclick="decline(this)">辞退</button>
+            </div>
+          </div>
+
+          <div class="app" data-app id="app-marche">
+            <div class="app-top">
+              <div class="app-cat">🛍️</div>
+              <div class="app-h">
+                <div class="app-title">境内あさひマルシェ</div>
+                <div class="app-org">まちの縁側プロジェクト・学生団体 ENGAWA</div>
+              </div>
+              <div class="status s-new" data-status>新着</div>
+            </div>
+            <div class="app-meta">
+              <span class="meta-i"><span class="gi">📍</span>希望スペース：<b>境内</b></span>
+              <span class="meta-i"><span class="gi">🗓</span>希望日時：<b>9/7(日) 10:00–15:00</b></span>
+              <span class="meta-i"><span class="gi">👥</span>出店：<b>8ブース</b></span>
+            </div>
+            <div class="app-note">地元の農家・手仕事の作り手が集う小さな市。音響は控えめ、拡声器は使用しません。</div>
+            <div class="app-actions" data-actions>
+              <button class="btn btn-ok"   onclick="approve(this,'境内あさひマルシェ')">✓ 承認する</button>
+              <button class="btn btn-talk" onclick="discuss(this,'境内あさひマルシェ')">💬 詳細を相談</button>
+              <button class="btn btn-off"  onclick="decline(this)">辞退</button>
+            </div>
+          </div>
+
+          <div class="app" data-app id="app-shakyo">
+            <div class="app-top">
+              <div class="app-cat">🖌️</div>
+              <div class="app-h">
+                <div class="app-title">夜の写経と対話の会</div>
+                <div class="app-org">こころ塾・大橋 真理 さん</div>
+              </div>
+              <div class="status s-wait" data-status>調整中</div>
+            </div>
+            <div class="app-meta">
+              <span class="meta-i"><span class="gi">📍</span>希望スペース：<b>本堂</b></span>
+              <span class="meta-i"><span class="gi">🗓</span>希望日時：<b>8/23(土) 18:00–20:00</b></span>
+              <span class="meta-i"><span class="gi">👥</span>定員：<b>20名</b></span>
+            </div>
+            <div class="app-note">日程を1週間ずらせないか相談中。運営スタッフが間に入って調整しています。</div>
+            <div class="app-actions" data-actions>
+              <button class="btn btn-ok"   onclick="approve(this,'夜の写経と対話の会')">✓ この内容で承認</button>
+              <button class="btn btn-talk" onclick="discuss(this,'夜の写経と対話の会')">💬 相談を続ける</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TAB: spaces -->
+        <div class="tabpanel" id="tp-spaces" role="tabpanel" aria-labelledby="t-spaces" hidden>
+          <div class="space">
+            <div class="sp-th">⛩️</div>
+            <div class="sp-body">
+              <div class="sp-name">本堂</div>
+              <div class="sp-desc">最大30名・平日終日／土日午前・音量控えめ</div>
+            </div>
+            <div class="sp-state" data-spstate>掲載中</div>
+            <button class="toggle" aria-pressed="true" aria-label="本堂の掲載" onclick="toggleSpace(this)"></button>
+          </div>
+          <div class="space">
+            <div class="sp-th">🌿</div>
+            <div class="sp-body">
+              <div class="sp-name">庭園</div>
+              <div class="sp-desc">最大40名・晴天時のみ・写真撮影可</div>
+            </div>
+            <div class="sp-state" data-spstate>掲載中</div>
+            <button class="toggle" aria-pressed="true" aria-label="庭園の掲載" onclick="toggleSpace(this)"></button>
+          </div>
+          <div class="space">
+            <div class="sp-th">🍵</div>
+            <div class="sp-body">
+              <div class="sp-name">客殿（和室）</div>
+              <div class="sp-desc">最大16名・冷暖房あり・茶道具貸出可</div>
+            </div>
+            <div class="sp-state" data-spstate>掲載中</div>
+            <button class="toggle" aria-pressed="true" aria-label="客殿の掲載" onclick="toggleSpace(this)"></button>
+          </div>
+          <div class="space">
+            <div class="sp-th">🏯</div>
+            <div class="sp-body">
+              <div class="sp-name">境内広場</div>
+              <div class="sp-desc">最大200名・屋外・電源あり・要相談</div>
+            </div>
+            <div class="sp-state" data-spstate>掲載中</div>
+            <button class="toggle" aria-pressed="true" aria-label="境内の掲載" onclick="toggleSpace(this)"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: calendar -->
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mk"></span>予定カレンダー</div>
+        </div>
+        <div class="tabpanel">
+          <div class="cal-head">
+            <div class="cal-title">2026年 7月</div>
+            <div class="cal-nav">
+              <button aria-label="前の月" onclick="toast('先月の予定を表示（プロトタイプ）')">‹</button>
+              <button aria-label="次の月" onclick="toast('来月の予定を表示（プロトタイプ）')">›</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal"></div>
+          <div class="cal-legend">
+            <span><i class="dotc" style="background:var(--matcha)"></i>成立イベント</span>
+            <span><i class="dotc" style="background:var(--shu)"></i>本日・要確認</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mk" style="background:var(--kincha)"></span>運営サポート</div>
+        </div>
+        <div class="tabpanel" style="padding-top:14px">
+          <p style="margin:0 0 14px; font-size:14.5px; color:var(--sumi-soft); line-height:1.7">
+            掲載や申込のご対応でお困りの際は、テラつなぎの担当者が裏側でサポートいたします。お気軽にご相談ください。
+          </p>
+          <button class="btn btn-talk" style="width:100%; justify-content:center" onclick="toast('担当者につなぎます（プロトタイプ）')">
+            📞 担当者に相談する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-host" id="toasts" aria-live="polite"></div>
+
+<script>
+  /* ---------- tabs ---------- */
+  function switchTab(name){
+    const map = { apps:'t-apps', spaces:'t-spaces' };
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected','false'));
+    document.getElementById(map[name]).setAttribute('aria-selected','true');
+    document.getElementById('tp-apps').hidden   = name !== 'apps';
+    document.getElementById('tp-spaces').hidden = name !== 'spaces';
+  }
+
+  /* ---------- application actions ---------- */
+  function setStatus(card, cls, label){
+    const s = card.querySelector('[data-status]');
+    s.className = 'status ' + cls;
+    s.textContent = label;
+  }
+  function lockCard(card, msg){
+    card.classList.add('done');
+    const act = card.querySelector('[data-actions]');
+    act.outerHTML = '<div class="resolved-tag">✅ ' + msg + '</div>';
+    recount();
+  }
+  function approve(btn, title){
+    const card = btn.closest('[data-app]');
+    setStatus(card, 's-ok', '承認済み');
+    lockCard(card, '「'+title+'」を承認しました。企画者へ通知し、カレンダーに登録されます。');
+    toast('「'+title+'」を承認しました', 'ok');
+  }
+  function discuss(btn, title){
+    const card = btn.closest('[data-app]');
+    setStatus(card, 's-wait', '調整中');
+    toast('「'+title+'」の相談スレッドを開きました', 'warn');
+  }
+  function decline(btn){
+    const card = btn.closest('[data-app]');
+    setStatus(card, 's-off', '辞退');
+    lockCard(card, 'この申込を辞退しました。企画者へ丁重にお伝えします。');
+    toast('申込を辞退しました', 'warn');
+  }
+
+  /* ---------- recount stats + pill ---------- */
+  function recount(){
+    let neu=0, wait=0;
+    document.querySelectorAll('#tp-apps [data-app]').forEach(c=>{
+      const t = c.querySelector('[data-status]').textContent;
+      if(t==='新着') neu++;
+      if(t==='調整中') wait++;
+    });
+    document.getElementById('stat-new').innerHTML = neu + '<small>件</small>';
+    document.getElementById('stat-wait').innerHTML = wait + '<small>件</small>';
+    document.getElementById('cnt-apps').textContent = neu;
+  }
+
+  /* ---------- space toggle ---------- */
+  function toggleSpace(btn){
+    const on = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', String(!on));
+    const row = btn.closest('.space');
+    const st = row.querySelector('[data-spstate]');
+    st.textContent = on ? '非公開' : '掲載中';
+    st.style.color = on ? 'var(--off)' : 'var(--sumi-faint)';
+    toast(row.querySelector('.sp-name').textContent + (on ? ' を非公開にしました' : ' を掲載しました'), on?'warn':'ok');
+  }
+
+  /* ---------- toast ---------- */
+  function toast(msg, kind){
+    const host = document.getElementById('toasts');
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind==='warn' ? ' warn' : '');
+    el.innerHTML = '<span class="ic">'+(kind==='warn'?'!':'✓')+'</span><span>'+msg+'</span>';
+    host.appendChild(el);
+    setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 2600);
+  }
+
+  /* ---------- calendar ---------- */
+  (function buildCal(){
+    const events = {
+      6:  {t:'椅子坐禅会', shu:false},
+      12: {t:'寺子屋こども教室', shu:false},
+      15: {t:'本日', shu:true},
+      20: {t:'夏の写経会', shu:false},
+      27: {t:'夕涼み茶会', shu:false},
+    };
+    const firstDow = new Date(2026,6,1).getDay(); // July 2026
+    const days = 31;
+    const cal = document.getElementById('cal');
+    const dows = ['日','月','火','水','木','金','土'];
+    dows.forEach((d,i)=>{
+      const e = document.createElement('div');
+      e.className = 'cal-dow' + (i===0?' sun':'') + (i===6?' sat':'');
+      e.textContent = d; cal.appendChild(e);
+    });
+    for(let i=0;i<firstDow;i++){ const p=document.createElement('div'); p.className='cal-cell pad'; cal.appendChild(p); }
+    for(let d=1; d<=days; d++){
+      const cell = document.createElement('div');
+      const ev = events[d];
+      cell.className = 'cal-cell' + (ev?' has':'') + (d===15?' today':'');
+      cell.innerHTML = '<span class="d">'+d+'</span>';
+      if(ev && d!==15){ cell.innerHTML += '<div class="cal-ev'+(ev.shu?' shu':'')+'">'+ev.t+'</div>'; }
+      if(d===15){ cell.innerHTML += '<div class="cal-ev shu">本日</div>'; }
+      cal.appendChild(cell);
+    }
+  })();
+</script>
