@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* ============================================================
+   デザイントークン（正は DESIGN_SYSTEM.md）
+   実際の色は CSS 変数で持ち、@theme inline で Tailwind ユーティリティに橋渡しする。
+   → bg-washi / text-sumi / border-line / bg-matcha-bg / font-serif などが使える。
+   ライト/ダークは prefers-color-scheme と [data-theme] の両対応。
+   ============================================================ */
+:root {
+  --washi:#f3ede0; --washi-2:#ede5d4; --card:#fbf8f1; --card-2:#f7f1e5;
+  --sumi:#2c2822; --sumi-soft:#5b5346; --sumi-faint:#8c8375; --line:#ddd2bd; --line-soft:#e7ddca;
+  --matcha:#6a774b; --matcha-ink:#4f5a35; --matcha-bg:#e6e8d5; --matcha-deep:#414a2c;
+  --shu:#b04a2f; --shu-ink:#8f3a24; --shu-bg:#f2ddd2; --kincha:#a8823f; --kincha-bg:#f0e6cf;
+  --ok:#4f7a4d; --ok-bg:#dfe9d8; --wait:#b3822a; --wait-bg:#f2e6c9; --off:#9a5a4a; --off-bg:#ecdcd4;
+  --on-accent:#f5f2e7; --on-shu:#fbf3ea;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","MS PMincho",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","Noto Sans JP",sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --washi:#1c1a16; --washi-2:#171512; --card:#26231d; --card-2:#2c2822;
+    --sumi:#efe8da; --sumi-soft:#c1b8a6; --sumi-faint:#8f8676; --line:#3a352c; --line-soft:#332e26;
+    --matcha:#9aa876; --matcha-ink:#b6c391; --matcha-bg:#31382a; --matcha-deep:#c3cf9f;
+    --shu:#d9694a; --shu-ink:#e9906f; --shu-bg:#3a2820; --kincha:#cba861; --kincha-bg:#39311d;
+    --ok:#8fb27f; --ok-bg:#2b3626; --wait:#d5ad57; --wait-bg:#39311d; --off:#c98874; --off-bg:#382622;
+  }
+}
+
+:root[data-theme="light"] {
+  --washi:#f3ede0; --washi-2:#ede5d4; --card:#fbf8f1; --card-2:#f7f1e5;
+  --sumi:#2c2822; --sumi-soft:#5b5346; --sumi-faint:#8c8375; --line:#ddd2bd; --line-soft:#e7ddca;
+  --matcha:#6a774b; --matcha-ink:#4f5a35; --matcha-bg:#e6e8d5; --matcha-deep:#414a2c;
+  --shu:#b04a2f; --shu-ink:#8f3a24; --shu-bg:#f2ddd2; --kincha:#a8823f; --kincha-bg:#f0e6cf;
+  --ok:#4f7a4d; --ok-bg:#dfe9d8; --wait:#b3822a; --wait-bg:#f2e6c9; --off:#9a5a4a; --off-bg:#ecdcd4;
+}
+
+:root[data-theme="dark"] {
+  --washi:#1c1a16; --washi-2:#171512; --card:#26231d; --card-2:#2c2822;
+  --sumi:#efe8da; --sumi-soft:#c1b8a6; --sumi-faint:#8f8676; --line:#3a352c; --line-soft:#332e26;
+  --matcha:#9aa876; --matcha-ink:#b6c391; --matcha-bg:#31382a; --matcha-deep:#c3cf9f;
+  --shu:#d9694a; --shu-ink:#e9906f; --shu-bg:#3a2820; --kincha:#cba861; --kincha-bg:#39311d;
+  --ok:#8fb27f; --ok-bg:#2b3626; --wait:#d5ad57; --wait-bg:#39311d; --off:#c98874; --off-bg:#382622;
+}
+
+@theme inline {
+  --color-washi: var(--washi);
+  --color-washi-2: var(--washi-2);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-sumi: var(--sumi);
+  --color-sumi-soft: var(--sumi-soft);
+  --color-sumi-faint: var(--sumi-faint);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-matcha: var(--matcha);
+  --color-matcha-ink: var(--matcha-ink);
+  --color-matcha-bg: var(--matcha-bg);
+  --color-matcha-deep: var(--matcha-deep);
+  --color-shu: var(--shu);
+  --color-shu-ink: var(--shu-ink);
+  --color-shu-bg: var(--shu-bg);
+  --color-kincha: var(--kincha);
+  --color-kincha-bg: var(--kincha-bg);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-wait: var(--wait);
+  --color-wait-bg: var(--wait-bg);
+  --color-off: var(--off);
+  --color-off-bg: var(--off-bg);
+  --color-on-accent: var(--on-accent);
+  --color-on-shu: var(--on-shu);
+  --font-sans: var(--sans);
+  --font-serif: var(--serif);
+}
+
+body {
+  background: var(--washi);
+  color: var(--sumi);
+  font-family: var(--sans);
+}
+
+/* 数値の桁揃え（日時・件数・料金） */
+.tabular { font-variant-numeric: tabular-nums; }

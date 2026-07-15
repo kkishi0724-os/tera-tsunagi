@@ -7,3 +7,10 @@
 
 # cloudflare
 .wrangler/
+
+# node / next（web/ の実アプリ）
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

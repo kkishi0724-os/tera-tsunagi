@@ -105,14 +105,19 @@
 
 A で"型"が決まっていれば、パターン反復・定型実装なので下位モデルに任せてよい。
 
-1. **B-1 技術スタックの選定と初期セットアップ**。他プロジェクト（grave-cleaning /
-   handball-donation / team-stats）は **Next.js(App Router)+TypeScript+Tailwind** で
-   統一されているので踏襲が有力。踏襲する場合はスキャフォールドは定型作業。
-   ※ `AGENTS.md` にある「この Next.js は破壊的変更あり、`node_modules/next/dist/docs/` を
-   読んでから書く」ルールも他プロジェクトから引き継ぐこと。
-2. **B-2 A-1のデザイントークンに沿った各画面のコーディング**（型に沿った量産）。
-3. **B-3 DBスキーマ（DESIGN.md 5章）のマイグレーション実装**（定義は確定済み）。
-4. **B-4 プロトタイプの静的コピー流用**（ダッシュボードHTML → コンポーネント化）。
+1. **[済 2026-07-15] B-1 技術スタック選定＋初期セットアップ** → `web/`（実アプリ）。
+   他プロジェクト踏襲で **Next 16.2.7 / React 19.2.4 / Tailwind v4 / TS5 / 静的export**。
+   **`web/` サブフォルダに配置**（ルートの `wrangler.toml` が `./prototype` を配信中で公開サイトが
+   稼働しているため、それを壊さず並走）。手順・切替方針は `B_IMPLEMENTATION.md`、Next16注意は `web/AGENTS.md`。
+   - `app/globals.css` に **DESIGN_SYSTEM.md のトークンを Tailwind v4 `@theme inline`＋CSS変数で実装済み**
+     （`bg-washi`/`text-sumi`/`bg-matcha-bg`/`font-serif`、ライト/ダーク対応）。
+   - `components/Button.tsx`・`StatusPill.tsx` を**移植パターン見本**として配置。`app/page.tsx` は動作確認デモ。
+   - **検証済み**: `cd web && npm install && npm run build` 成功（TypeScript通過・静的export・生成CSSにトークン反映）。
+2. **[次] B-2 各画面のコーディング**（型に沿った量産）。`B_IMPLEMENTATION.md` の推奨順に、
+   共通部品→LP→ダッシュボード→掲載→スレッド→企画者検索、を `prototype/*.html` から移植。
+3. **B-3 DBスキーマ（DESIGN.md 5章）のマイグレーション実装**（A-4決定を反映：`fees`/`support_orders`/
+   status に`キャンセル`追加）。まずはモックデータで画面を作り、後でDB接続。
+4. **B-4 公開の切替**（実アプリが揃ったら `web/out` を Cloudflare へ。案A/B は `B_IMPLEMENTATION.md`）。
 
 ---
 
