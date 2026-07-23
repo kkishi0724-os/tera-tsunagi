@@ -2,6 +2,7 @@
 // 画面はこの getter 経由でデータを読む。後日、本番バックエンド（B3_DATA.md 参照）に繋ぐ際は
 // この getter の中身だけ差し替えれば、画面側の変更は最小で済む。
 import type { Space, Gig } from "./types";
+import { getSupabase } from "./supabase";
 
 const SPACES: Space[] = [
   { id: 1, temple: "妙覚寺", name: "本堂", em: "⛩️", place: "本堂", cats: ["ヨガ", "音楽"],
@@ -39,12 +40,47 @@ const GIGS: Gig[] = [
     when: "8/24(日) 7:00–10:00", pay: "時給1,200円", cap: 3, tags: [["未経験OK", true], ["涼しい朝", false], ["道具貸与", false]] },
 ];
 
-/** 掲載中スペースの一覧を取得（現状はモック。将来は本番バックエンドから取得）。 */
+/** 初期表示用の同期モック（即描画）。 */
 export function getSpaces(): Space[] {
   return SPACES;
 }
-
-/** 募集中のお手伝い一覧を取得（現状はモック）。 */
 export function getGigs(): Gig[] {
   return GIGS;
+}
+
+/**
+ * 掲載中スペースを取得。Supabase 未設定・エラー時はモックにフォールバック。
+ * 画面は初期表示に getSpaces() を使い、マウント後に fetchSpaces() で差し替える想定。
+ */
+export async function fetchSpaces(): Promise<Space[]> {
+  const sb = getSupabase();
+  if (!sb) return SPACES;
+  const { data, error } = await sb
+    .from("spaces")
+    .select("id,temple,name,em,place,cats,description,avail,cap,price,tags")
+    .eq("published", true)
+    .order("id");
+  if (error || !data || data.length === 0) return SPACES;
+  return data.map((r): Space => ({
+    id: r.id, temple: r.temple, name: r.name, em: r.em ?? "⛩️", place: r.place ?? "",
+    cats: r.cats ?? [], desc: r.description ?? "", avail: r.avail ?? "",
+    cap: r.cap ?? 0, price: r.price ?? "応相談", tags: r.tags ?? [],
+  }));
+}
+
+/** 募集中のお手伝いを取得。Supabase 未設定・エラー時はモックにフォールバック。 */
+export async function fetchGigs(): Promise<Gig[]> {
+  const sb = getSupabase();
+  if (!sb) return GIGS;
+  const { data, error } = await sb
+    .from("gigs")
+    .select("id,temple,title,em,cat,work,when_note,pay,cap,tags")
+    .eq("open", true)
+    .order("id");
+  if (error || !data || data.length === 0) return GIGS;
+  return data.map((r): Gig => ({
+    id: r.id, temple: r.temple, title: r.title, em: r.em ?? "🧹", cat: r.cat ?? "",
+    work: r.work ?? [], when: r.when_note ?? "", pay: r.pay ?? "",
+    cap: r.cap ?? 0, tags: r.tags ?? [],
+  }));
 }

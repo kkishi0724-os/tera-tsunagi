@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
-import { getSpaces } from "@/lib/data";
+import { getSpaces, fetchSpaces } from "@/lib/data";
 import type { Space } from "@/lib/types";
 
 // 企画者の空き枠検索〜申込。prototype/organizer-search.html を移植し、v3方針で申込を簡素化。
 // 申込は「ひとことメッセージ（自由記述）」中心。細部は申込後の直接やりとりで決める（SIMPLIFY_v3.md）。
-// データはモックのデータ層（lib/data）経由。将来は本番バックエンドに差し替え（B3_DATA.md）。
-const SPACES = getSpaces();
+// データはデータ層（lib/data）経由。初期はモックで即描画し、Supabase 設定済みならマウント後に差し替え（B3_DATA.md）。
 
 const CAT_FILTERS = [["all", "すべて"], ["ヨガ", "ヨガ・体操"], ["マルシェ", "マルシェ・市"], ["ワークショップ", "ワークショップ"], ["音楽", "音楽・朗読"], ["展示", "展示・撮影"]] as const;
 const PLACE_FILTERS = [["all", "すべて"], ["本堂", "本堂"], ["庭園", "庭園"], ["和室", "和室・客殿"], ["境内", "境内・屋外"]] as const;
@@ -21,10 +20,15 @@ export default function SearchPage() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
+  const [spaces, setSpaces] = useState<Space[]>(getSpaces());
+
+  useEffect(() => {
+    fetchSpaces().then(setSpaces).catch(() => {});
+  }, []);
 
   const list = useMemo(
     () =>
-      SPACES.filter((s) => {
+      spaces.filter((s) => {
         if (cat !== "all" && !s.cats.includes(cat)) return false;
         if (place !== "all" && s.place !== place) return false;
         if (q) {
@@ -33,7 +37,7 @@ export default function SearchPage() {
         }
         return true;
       }),
-    [cat, place, q],
+    [cat, place, q, spaces],
   );
 
   function openPanel(s: Space) {

@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
-import { getGigs } from "@/lib/data";
+import { getGigs, fetchGigs } from "@/lib/data";
 import type { Gig } from "@/lib/types";
 
 // お手伝い（スキマバイト）検索〜応募。v3方針で応募を簡素化（自己紹介の自由記述中心・必須最小）。
 // 参加日など細部は応募後の直接やりとりで決める（SIMPLIFY_v3.md）。
-// データはモックのデータ層（lib/data）経由。将来は本番バックエンドに差し替え（B3_DATA.md）。
-const GIGS = getGigs();
+// データはデータ層（lib/data）経由。初期はモックで即描画し、Supabase 設定済みならマウント後に差し替え（B3_DATA.md）。
 
 const CAT_FILTERS = [["all", "すべて"], ["清掃", "清掃・庭仕事"], ["祭り", "祭り・イベント"], ["受付", "受付・法要"], ["SNS", "SNS・撮影"]] as const;
 const WORK_FILTERS = [["all", "すべて"], ["単発", "単発"], ["土日", "土日"], ["平日", "平日"], ["早朝", "早朝"]] as const;
@@ -20,10 +19,15 @@ export default function GigsPage() {
   const [current, setCurrent] = useState<Gig | null>(null);
   const [pr, setPr] = useState("");
   const [done, setDone] = useState(false);
+  const [gigs, setGigs] = useState<Gig[]>(getGigs());
+
+  useEffect(() => {
+    fetchGigs().then(setGigs).catch(() => {});
+  }, []);
 
   const list = useMemo(
     () =>
-      GIGS.filter((g) => {
+      gigs.filter((g) => {
         if (cat !== "all" && g.cat !== cat) return false;
         if (work !== "all" && !g.work.includes(work)) return false;
         if (q) {
@@ -32,7 +36,7 @@ export default function GigsPage() {
         }
         return true;
       }),
-    [cat, work, q],
+    [cat, work, q, gigs],
   );
 
   function openPanel(g: Gig) {
