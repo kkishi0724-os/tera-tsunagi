@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 // 公開LP。prototype/landing.html を移植（移植第1号・以降の見本）。
 // CTA のリンク先（/temple, /search 等）は各画面の実装後に差し替える。TODO はコメントで明示。
 const DASHBOARD = "/temple"; // 寺院ダッシュボード（移植済み）
-const SEARCH = "#doors"; // TODO: 実装後に /search へ
+const SEARCH = "/search"; // 企画者の空き枠検索（移植済み）
 
 export default function Home() {
   return (
