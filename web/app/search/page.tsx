@@ -2,34 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
+import { getSpaces } from "@/lib/data";
+import type { Space } from "@/lib/types";
 
 // 企画者の空き枠検索〜申込。prototype/organizer-search.html を移植し、v3方針で申込を簡素化。
 // 申込は「ひとことメッセージ（自由記述）」中心。細部は申込後の直接やりとりで決める（SIMPLIFY_v3.md）。
-type Space = {
-  id: number; temple: string; name: string; em: string; place: string; cats: string[];
-  desc: string; avail: string; cap: number; price: string; tags: string[];
-};
-
-const SPACES: Space[] = [
-  { id: 1, temple: "妙覚寺", name: "本堂", em: "⛩️", place: "本堂", cats: ["ヨガ", "音楽"],
-    desc: "朝の澄んだ空気の中、静かに過ごせる本堂。定期利用の相談も歓迎です。",
-    avail: "平日の朝／土日の夕方など、応相談", cap: 30, price: "応相談", tags: ["静か・音量控えめ", "土足厳禁"] },
-  { id: 2, temple: "妙覚寺", name: "境内広場", em: "🏯", place: "境内", cats: ["マルシェ", "展示"],
-    desc: "大きな催しに向く広い境内。電源あり、8ブース程度のマルシェ実績あり。",
-    avail: "9月の日曜・祝日の日中", cap: 200, price: "¥20,000〜", tags: ["屋外", "電源あり"] },
-  { id: 3, temple: "長楽寺", name: "庭園", em: "🌿", place: "庭園", cats: ["展示", "ワークショップ"],
-    desc: "手入れの行き届いた回遊式庭園。撮影・展示・少人数の茶会に。",
-    avail: "土日の午後（雨天中止）", cap: 40, price: "¥15,000〜", tags: ["屋外", "撮影可"] },
-  { id: 4, temple: "建仁院", name: "客殿（和室）", em: "🍵", place: "和室", cats: ["ワークショップ"],
-    desc: "冷暖房完備の落ち着いた和室。手仕事のワークショップにおすすめ。",
-    avail: "平日 10〜17時ごろ、応相談", cap: 16, price: "¥8,000〜", tags: ["冷暖房あり", "給湯・台所"] },
-  { id: 5, temple: "光明寺", name: "本堂", em: "⛩️", place: "本堂", cats: ["音楽", "ヨガ"],
-    desc: "音の響きが美しい本堂。夜間の音楽会・朗読会に向いています。",
-    avail: "夜間 18〜21時ごろ、応相談", cap: 50, price: "応相談", tags: ["音響設備", "夜間可"] },
-  { id: 6, temple: "円成寺", name: "書院", em: "🏛️", place: "和室", cats: ["ワークショップ", "展示"],
-    desc: "少人数の会に向く静かな書院。読書会・句会・小さな展示に。",
-    avail: "随時、応相談", cap: 12, price: "¥5,000〜", tags: ["静か", "駐車場"] },
-];
+// データはモックのデータ層（lib/data）経由。将来は本番バックエンドに差し替え（B3_DATA.md）。
+const SPACES = getSpaces();
 
 const CAT_FILTERS = [["all", "すべて"], ["ヨガ", "ヨガ・体操"], ["マルシェ", "マルシェ・市"], ["ワークショップ", "ワークショップ"], ["音楽", "音楽・朗読"], ["展示", "展示・撮影"]] as const;
 const PLACE_FILTERS = [["all", "すべて"], ["本堂", "本堂"], ["庭園", "庭園"], ["和室", "和室・客殿"], ["境内", "境内・屋外"]] as const;

@@ -2,28 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
+import { getGigs } from "@/lib/data";
+import type { Gig } from "@/lib/types";
 
 // お手伝い（スキマバイト）検索〜応募。v3方針で応募を簡素化（自己紹介の自由記述中心・必須最小）。
 // 参加日など細部は応募後の直接やりとりで決める（SIMPLIFY_v3.md）。
-type Gig = {
-  id: number; temple: string; title: string; em: string; cat: string; work: string[];
-  when: string; pay: string; cap: number; tags: [string, boolean][];
-};
-
-const GIGS: Gig[] = [
-  { id: 1, temple: "妙覚寺", title: "境内の落ち葉清掃", em: "🧹", cat: "清掃", work: ["単発", "土日", "早朝"],
-    when: "9/6(土) 8:00–11:00", pay: "時給1,200円", cap: 2, tags: [["未経験OK", true], ["朝活", false], ["道具貸与", false]] },
-  { id: 2, temple: "妙覚寺", title: "秋祭りの設営・受付補助", em: "🏮", cat: "祭り", work: ["単発", "土日"],
-    when: "9/23(祝) 9:00–16:00", pay: "日給8,000円", cap: 5, tags: [["学生歓迎", true], ["まかないあり", true], ["友達と応募OK", false]] },
-  { id: 3, temple: "長楽寺", title: "法要の受付・お茶出し", em: "🍵", cat: "受付", work: ["単発", "平日"],
-    when: "8/28(木) 10:00–13:00", pay: "時給1,100円", cap: 2, tags: [["未経験OK", true], ["服装貸与", false], ["落ち着いた環境", false]] },
-  { id: 4, temple: "光明寺", title: "SNS投稿・写真撮影アシスト", em: "📷", cat: "SNS", work: ["平日"],
-    when: "平日 応相談（週1〜）", pay: "1回3,000円", cap: 1, tags: [["スマホでOK", true], ["在宅一部可", false], ["継続歓迎", false]] },
-  { id: 5, temple: "建仁院", title: "写経会の準備・片付け", em: "🖌️", cat: "受付", work: ["土日"],
-    when: "毎週土曜 14:00–17:00", pay: "時給1,150円", cap: 2, tags: [["週1〜", true], ["未経験OK", false], ["冷暖房あり", false]] },
-  { id: 6, temple: "円成寺", title: "庭園の草むしり", em: "🌿", cat: "清掃", work: ["単発", "土日", "早朝"],
-    when: "8/24(日) 7:00–10:00", pay: "時給1,200円", cap: 3, tags: [["未経験OK", true], ["涼しい朝", false], ["道具貸与", false]] },
-];
+// データはモックのデータ層（lib/data）経由。将来は本番バックエンドに差し替え（B3_DATA.md）。
+const GIGS = getGigs();
 
 const CAT_FILTERS = [["all", "すべて"], ["清掃", "清掃・庭仕事"], ["祭り", "祭り・イベント"], ["受付", "受付・法要"], ["SNS", "SNS・撮影"]] as const;
 const WORK_FILTERS = [["all", "すべて"], ["単発", "単発"], ["土日", "土日"], ["平日", "平日"], ["早朝", "早朝"]] as const;
