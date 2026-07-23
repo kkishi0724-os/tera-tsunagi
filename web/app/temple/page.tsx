@@ -58,10 +58,6 @@ export default function TempleDashboard() {
     update(a.id, { status: "ok", resolved: `「${a.title}」を承認しました。企画者へ通知し、カレンダーに登録されます。` });
     toast(`「${a.title}」を承認しました`);
   }
-  function discuss(a: App) {
-    update(a.id, { status: "wait" });
-    toast(`「${a.title}」の相談スレッドを開きました`, true);
-  }
   function decline(a: App) {
     update(a.id, { status: "off", resolved: "この申込を辞退しました。企画者へ丁重にお伝えします。" });
     toast("申込を辞退しました", true);
@@ -167,7 +163,7 @@ export default function TempleDashboard() {
                     ) : (
                       <div className="mt-3.5 flex flex-wrap gap-2.5 pl-[58px] max-[560px]:pl-0">
                         <button className="inline-flex items-center gap-2 rounded-[10px] bg-matcha px-[18px] py-[11px] text-[15px] font-semibold text-on-accent hover:brightness-105" onClick={() => approve(a)}>✓ {a.status === "wait" ? "この内容で承認" : "承認する"}</button>
-                        <button className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-line bg-card px-[18px] py-[11px] text-[15px] font-semibold text-sumi hover:border-matcha hover:text-matcha-ink" onClick={() => discuss(a)}>💬 {a.status === "wait" ? "相談を続ける" : "詳細を相談"}</button>
+                        <a href="/temple/messages" className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-line bg-card px-[18px] py-[11px] text-[15px] font-semibold text-sumi hover:border-matcha hover:text-matcha-ink">💬 {a.status === "wait" ? "相談を続ける" : "詳細を相談"}</a>
                         {a.status !== "wait" && (
                           <button className="rounded-[10px] px-3 py-[11px] text-[15px] font-semibold text-sumi-faint hover:text-off" onClick={() => decline(a)}>辞退</button>
                         )}
