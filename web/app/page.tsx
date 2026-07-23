@@ -20,7 +20,7 @@ export default function Home() {
             <span className="font-serif text-xl tracking-[0.05em]">テラつなぎ</span>
           </div>
           <nav className="ml-6 hidden gap-6 md:flex">
-            <a href="#doors" className="text-sm text-sumi-soft hover:text-matcha-ink">はじめる</a>
+            <a href="/start" className="text-sm text-sumi-soft hover:text-matcha-ink">はじめる</a>
             <a href="#how" className="text-sm text-sumi-soft hover:text-matcha-ink">使い方</a>
             <a href="#examples" className="text-sm text-sumi-soft hover:text-matcha-ink">生まれた企画</a>
             <a href="#ops" className="text-sm text-sumi-soft hover:text-matcha-ink">運営のサポート</a>
