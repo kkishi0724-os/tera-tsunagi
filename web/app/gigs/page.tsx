@@ -3,31 +3,26 @@
 import { useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
 
-// お手伝い（スキマバイト）検索〜応募。prototype/worker-gigs.html を移植（移植第4号・入口②のワーカー側）。
+// お手伝い（スキマバイト）検索〜応募。v3方針で応募を簡素化（自己紹介の自由記述中心・必須最小）。
+// 参加日など細部は応募後の直接やりとりで決める（SIMPLIFY_v3.md）。
 type Gig = {
   id: number; temple: string; title: string; em: string; cat: string; work: string[];
-  when: string; slots: string[]; pay: string; cap: number; tags: [string, boolean][];
+  when: string; pay: string; cap: number; tags: [string, boolean][];
 };
 
 const GIGS: Gig[] = [
   { id: 1, temple: "妙覚寺", title: "境内の落ち葉清掃", em: "🧹", cat: "清掃", work: ["単発", "土日", "早朝"],
-    when: "9/6(土) 8:00–11:00", slots: ["9/6(土) 8:00–11:00"], pay: "時給1,200円", cap: 2,
-    tags: [["未経験OK", true], ["朝活", false], ["道具貸与", false]] },
+    when: "9/6(土) 8:00–11:00", pay: "時給1,200円", cap: 2, tags: [["未経験OK", true], ["朝活", false], ["道具貸与", false]] },
   { id: 2, temple: "妙覚寺", title: "秋祭りの設営・受付補助", em: "🏮", cat: "祭り", work: ["単発", "土日"],
-    when: "9/23(祝) 9:00–16:00", slots: ["9/23(祝) 9:00–16:00"], pay: "日給8,000円", cap: 5,
-    tags: [["学生歓迎", true], ["まかないあり", true], ["友達と応募OK", false]] },
+    when: "9/23(祝) 9:00–16:00", pay: "日給8,000円", cap: 5, tags: [["学生歓迎", true], ["まかないあり", true], ["友達と応募OK", false]] },
   { id: 3, temple: "長楽寺", title: "法要の受付・お茶出し", em: "🍵", cat: "受付", work: ["単発", "平日"],
-    when: "8/28(木) 10:00–13:00", slots: ["8/28(木) 10:00–13:00"], pay: "時給1,100円", cap: 2,
-    tags: [["未経験OK", true], ["服装貸与", false], ["落ち着いた環境", false]] },
+    when: "8/28(木) 10:00–13:00", pay: "時給1,100円", cap: 2, tags: [["未経験OK", true], ["服装貸与", false], ["落ち着いた環境", false]] },
   { id: 4, temple: "光明寺", title: "SNS投稿・写真撮影アシスト", em: "📷", cat: "SNS", work: ["平日"],
-    when: "平日 応相談（週1〜）", slots: ["平日午前（応相談）", "平日午後（応相談）"], pay: "1回3,000円", cap: 1,
-    tags: [["スマホでOK", true], ["在宅一部可", false], ["継続歓迎", false]] },
+    when: "平日 応相談（週1〜）", pay: "1回3,000円", cap: 1, tags: [["スマホでOK", true], ["在宅一部可", false], ["継続歓迎", false]] },
   { id: 5, temple: "建仁院", title: "写経会の準備・片付け", em: "🖌️", cat: "受付", work: ["土日"],
-    when: "毎週土曜 14:00–17:00", slots: ["8/23(土) 14:00–17:00", "8/30(土) 14:00–17:00", "9/6(土) 14:00–17:00"],
-    pay: "時給1,150円", cap: 2, tags: [["週1〜", true], ["未経験OK", false], ["冷暖房あり", false]] },
+    when: "毎週土曜 14:00–17:00", pay: "時給1,150円", cap: 2, tags: [["週1〜", true], ["未経験OK", false], ["冷暖房あり", false]] },
   { id: 6, temple: "円成寺", title: "庭園の草むしり", em: "🌿", cat: "清掃", work: ["単発", "土日", "早朝"],
-    when: "8/24(日) 7:00–10:00", slots: ["8/24(日) 7:00–10:00"], pay: "時給1,200円", cap: 3,
-    tags: [["未経験OK", true], ["涼しい朝", false], ["道具貸与", false]] },
+    when: "8/24(日) 7:00–10:00", pay: "時給1,200円", cap: 3, tags: [["未経験OK", true], ["涼しい朝", false], ["道具貸与", false]] },
 ];
 
 const CAT_FILTERS = [["all", "すべて"], ["清掃", "清掃・庭仕事"], ["祭り", "祭り・イベント"], ["受付", "受付・法要"], ["SNS", "SNS・撮影"]] as const;
@@ -38,7 +33,6 @@ export default function GigsPage() {
   const [work, setWork] = useState("all");
   const [q, setQ] = useState("");
   const [current, setCurrent] = useState<Gig | null>(null);
-  const [slotSel, setSlotSel] = useState<string | null>(null);
   const [pr, setPr] = useState("");
   const [done, setDone] = useState(false);
 
@@ -59,9 +53,8 @@ export default function GigsPage() {
   function openPanel(g: Gig) {
     setCurrent(g);
     setPr("");
-    setSlotSel(g.slots.length > 1 ? null : g.slots[0]);
   }
-  const canSubmit = pr.trim() !== "" && slotSel !== null;
+  const canSubmit = pr.trim() !== "";
 
   return (
     <>
@@ -136,13 +129,14 @@ export default function GigsPage() {
         </div>
       </div>
 
+      {/* apply slide-over（簡素版：必須は自己紹介のみ） */}
       <SlideOver
         open={current !== null}
         onClose={() => setCurrent(null)}
         title="このお手伝いに応募する"
         footer={
           <div className="flex items-center gap-3">
-            <span className="flex-1 text-xs text-sumi-faint">応募すると、お寺と運営に届きます。採用や日程の連絡はマイページで受け取れます。</span>
+            <span className="flex-1 text-xs text-sumi-faint">応募すると、お寺と運営に届きます。日程など細かいことは、このあと直接やりとりで決められます。</span>
             <button
               disabled={!canSubmit}
               onClick={() => { setDone(true); setCurrent(null); }}
@@ -170,42 +164,26 @@ export default function GigsPage() {
               </div>
             </div>
 
-            {current.slots.length > 1 ? (
-              <Field label="参加できる日" required>
-                <div className="flex flex-col gap-2">
-                  {current.slots.map((s) => (
-                    <button key={s} onClick={() => setSlotSel(s)} aria-pressed={slotSel === s} className={`flex items-center gap-[11px] rounded-[11px] border-[1.5px] px-[14px] py-3 text-[15px] tabular ${slotSel === s ? "border-shu bg-shu-bg font-semibold" : "border-line bg-card hover:border-shu"}`}>
-                      <span className={`relative h-5 w-5 flex-none rounded-full border-2 ${slotSel === s ? "border-shu after:absolute after:inset-[3px] after:rounded-full after:bg-shu" : "border-line"}`} />
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-            ) : (
-              <Field label="お手伝いの日時">
-                <div className="flex items-center gap-2.5 rounded-[11px] bg-shu-bg px-[14px] py-3 text-[15px] font-semibold text-shu-ink tabular">🗓 {current.slots[0]}</div>
-              </Field>
-            )}
-
             <Field label="自己紹介・意気込み" required>
-              <textarea value={pr} onChange={(e) => setPr(e.target.value)} placeholder="学年・経験・お寺で手伝いたい理由などを書くと、お寺が安心して選べます。（例：朝が得意で体力に自信があります）" className="min-h-[96px] w-full resize-y rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base leading-relaxed outline-none focus:border-shu" />
+              <textarea value={pr} onChange={(e) => setPr(e.target.value)} placeholder="学年・経験・参加できそうな日・お寺で手伝いたい理由などを、ざっくり書いてください。（例：朝が得意で体力に自信あり。土日はだいたい参加できます）細かいことは、このあと直接やりとりで決められます。" className="min-h-[120px] w-full resize-y rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base leading-relaxed outline-none focus:border-shu" />
             </Field>
-            <Field label="連絡・質問" optional>
-              <input placeholder="例）交通手段や持ち物について質問があります" className="w-full rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base outline-none focus:border-shu" />
-            </Field>
+
+            <div className="rounded-[11px] bg-shu-bg px-4 py-3 text-[13.5px] leading-relaxed text-shu-ink">
+              💬 このあとのやりとりは、お寺と直接おこないます。<b>運営も内容を確認でき、トラブル時に対応します</b>のでご安心ください。
+            </div>
           </>
         )}
       </SlideOver>
 
-      {done && current === null && (
+      {done && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-washi/80 p-[22px] backdrop-blur-sm">
           <div className="max-w-[440px] rounded-[18px] border border-line-soft bg-card p-9 text-center shadow-lg">
             <div className="mx-auto mb-[18px] grid h-[74px] w-[74px] place-items-center rounded-full bg-shu text-[38px] text-on-shu">✓</div>
             <h2 className="mb-2.5 font-serif text-[23px]">応募を送信しました</h2>
             <p className="mb-[22px] text-[15px] leading-relaxed text-sumi-soft">
-              お寺と運営に応募が届きました。採用や日程の連絡は、マイページの「やりとり」で受け取れます。
+              お寺と運営に応募が届きました。ここからは<b className="text-sumi">お寺と直接やりとり</b>で、日程や詳しいことを決められます。困ったときは運営が対応します。
             </p>
-            <button onClick={() => setDone(false)} className="w-full rounded-xl bg-gradient-to-br from-shu to-shu-ink px-[26px] py-3 text-base font-semibold text-on-shu">一覧に戻る</button>
+            <button onClick={() => { setDone(false); setPr(""); }} className="w-full rounded-xl bg-gradient-to-br from-shu to-shu-ink px-[26px] py-3 text-base font-semibold text-on-shu">一覧に戻る</button>
           </div>
         </div>
       )}

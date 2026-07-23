@@ -2,44 +2,37 @@
 
 import { useMemo, useState } from "react";
 import { SlideOver } from "@/components/SlideOver";
-import { Stepper } from "@/components/Stepper";
 
-// 企画者の空き枠検索〜申込。prototype/organizer-search.html を移植（移植第3号）。
+// 企画者の空き枠検索〜申込。prototype/organizer-search.html を移植し、v3方針で申込を簡素化。
+// 申込は「ひとことメッセージ（自由記述）」中心。細部は申込後の直接やりとりで決める（SIMPLIFY_v3.md）。
 type Space = {
   id: number; temple: string; name: string; em: string; place: string; cats: string[];
-  desc: string; slots: string[]; cap: number; price: string; tags: string[];
+  desc: string; avail: string; cap: number; price: string; tags: string[];
 };
 
 const SPACES: Space[] = [
   { id: 1, temple: "妙覚寺", name: "本堂", em: "⛩️", place: "本堂", cats: ["ヨガ", "音楽"],
     desc: "朝の澄んだ空気の中、静かに過ごせる本堂。定期利用の相談も歓迎です。",
-    slots: ["8/3(日) 7:00–8:30", "8/17(日) 7:00–8:30", "8/23(土) 18:00–20:00"], cap: 30, price: "応相談",
-    tags: ["静か・音量控えめ", "土足厳禁", "冷暖房なし"] },
+    avail: "平日の朝／土日の夕方など、応相談", cap: 30, price: "応相談", tags: ["静か・音量控えめ", "土足厳禁"] },
   { id: 2, temple: "妙覚寺", name: "境内広場", em: "🏯", place: "境内", cats: ["マルシェ", "展示"],
     desc: "大きな催しに向く広い境内。電源あり、8ブース程度のマルシェ実績あり。",
-    slots: ["9/7(日) 10:00–15:00", "9/21(祝) 10:00–15:00"], cap: 200, price: "¥20,000",
-    tags: ["屋外", "電源あり", "拡声器は要相談"] },
+    avail: "9月の日曜・祝日の日中", cap: 200, price: "¥20,000〜", tags: ["屋外", "電源あり"] },
   { id: 3, temple: "長楽寺", name: "庭園", em: "🌿", place: "庭園", cats: ["展示", "ワークショップ"],
     desc: "手入れの行き届いた回遊式庭園。撮影・展示・少人数の茶会に。",
-    slots: ["土日午後（応相談）", "8/30(土) 13:00–16:00"], cap: 40, price: "¥15,000",
-    tags: ["屋外", "撮影可", "雨天中止"] },
+    avail: "土日の午後（雨天中止）", cap: 40, price: "¥15,000〜", tags: ["屋外", "撮影可"] },
   { id: 4, temple: "建仁院", name: "客殿（和室）", em: "🍵", place: "和室", cats: ["ワークショップ"],
     desc: "冷暖房完備の落ち着いた和室。手仕事のワークショップにおすすめ。",
-    slots: ["平日 10:00–17:00（応相談）", "8/12(火) 13:00–15:30"], cap: 16, price: "¥8,000",
-    tags: ["冷暖房あり", "給湯・台所", "駐車場"] },
+    avail: "平日 10〜17時ごろ、応相談", cap: 16, price: "¥8,000〜", tags: ["冷暖房あり", "給湯・台所"] },
   { id: 5, temple: "光明寺", name: "本堂", em: "⛩️", place: "本堂", cats: ["音楽", "ヨガ"],
     desc: "音の響きが美しい本堂。夜間の音楽会・朗読会に向いています。",
-    slots: ["夜間 18:00–20:30（応相談）", "9/13(土) 18:30–20:30"], cap: 50, price: "応相談",
-    tags: ["音響設備", "夜間可", "土足厳禁"] },
+    avail: "夜間 18〜21時ごろ、応相談", cap: 50, price: "応相談", tags: ["音響設備", "夜間可"] },
   { id: 6, temple: "円成寺", name: "書院", em: "🏛️", place: "和室", cats: ["ワークショップ", "展示"],
     desc: "少人数の会に向く静かな書院。読書会・句会・小さな展示に。",
-    slots: ["随時（応相談）", "8/24(日) 14:00–16:00"], cap: 12, price: "¥5,000",
-    tags: ["静か", "お手洗い", "駐車場"] },
+    avail: "随時、応相談", cap: 12, price: "¥5,000〜", tags: ["静か", "駐車場"] },
 ];
 
 const CAT_FILTERS = [["all", "すべて"], ["ヨガ", "ヨガ・体操"], ["マルシェ", "マルシェ・市"], ["ワークショップ", "ワークショップ"], ["音楽", "音楽・朗読"], ["展示", "展示・撮影"]] as const;
 const PLACE_FILTERS = [["all", "すべて"], ["本堂", "本堂"], ["庭園", "庭園"], ["和室", "和室・客殿"], ["境内", "境内・屋外"]] as const;
-const FORM_CATS = ["ヨガ・体操", "マルシェ", "ワークショップ", "音楽・朗読", "展示・撮影", "その他"];
 
 export default function SearchPage() {
   const [cat, setCat] = useState("all");
@@ -47,10 +40,7 @@ export default function SearchPage() {
   const [q, setQ] = useState("");
   const [current, setCurrent] = useState<Space | null>(null);
   const [title, setTitle] = useState("");
-  const [formCat, setFormCat] = useState(FORM_CATS[0]);
-  const [slotSel, setSlotSel] = useState<string | null>(null);
-  const [headcount, setHeadcount] = useState(15);
-  const [content, setContent] = useState("");
+  const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
 
   const list = useMemo(
@@ -59,7 +49,7 @@ export default function SearchPage() {
         if (cat !== "all" && !s.cats.includes(cat)) return false;
         if (place !== "all" && s.place !== place) return false;
         if (q) {
-          const hay = (s.temple + s.name + s.desc + s.tags.join("") + s.slots.join("")).toLowerCase();
+          const hay = (s.temple + s.name + s.desc + s.tags.join("") + s.avail).toLowerCase();
           if (!hay.includes(q.toLowerCase())) return false;
         }
         return true;
@@ -69,13 +59,10 @@ export default function SearchPage() {
 
   function openPanel(s: Space) {
     setCurrent(s);
-    setSlotSel(null);
     setTitle("");
-    setContent("");
-    setHeadcount(15);
-    setFormCat(FORM_CATS[0]);
+    setMessage("");
   }
-  const canSubmit = title.trim() !== "" && content.trim() !== "" && slotSel !== null;
+  const canSubmit = message.trim() !== "";
 
   return (
     <>
@@ -114,7 +101,6 @@ export default function SearchPage() {
             />
             <button className="rounded-[10px] bg-gradient-to-br from-shu to-shu-ink px-[22px] py-3 text-[15px] font-semibold text-on-shu">さがす</button>
           </div>
-          {/* filters */}
           <div className="mt-4 flex flex-col gap-3">
             <FilterRow label="企画" value={cat} onChange={setCat} options={CAT_FILTERS} />
             <FilterRow label="場所" value={place} onChange={setPlace} options={PLACE_FILTERS} />
@@ -143,11 +129,8 @@ export default function SearchPage() {
                 <div className="text-[12.5px] text-sumi-faint">{s.temple}</div>
                 <div className="font-serif text-[18px]">{s.name}</div>
                 <div className="mt-[7px] flex-1 text-[13.5px] leading-relaxed text-sumi-soft">{s.desc}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {s.slots.slice(0, 2).map((x) => (
-                    <span key={x} className="rounded-[9px] border border-line-soft bg-card-2 px-[9px] py-1 text-xs text-sumi-soft tabular">🗓 {x}</span>
-                  ))}
-                  {s.slots.length > 2 && <span className="rounded-[9px] border border-line-soft bg-card-2 px-[9px] py-1 text-xs text-sumi-soft">＋{s.slots.length - 2}枠</span>}
+                <div className="mt-3 flex items-start gap-[7px] rounded-[9px] bg-card-2 px-[10px] py-2 text-[13px] text-sumi-soft">
+                  <span className="text-matcha-ink">🗓</span><span>空き：{s.avail}</span>
                 </div>
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {s.tags.map((t) => (
@@ -164,14 +147,14 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* apply slide-over */}
+      {/* apply slide-over（簡素版：必須はメッセージのみ） */}
       <SlideOver
         open={current !== null}
         onClose={() => setCurrent(null)}
         title="この枠に申し込む"
         footer={
           <div className="flex items-center gap-3">
-            <span className="flex-1 text-xs text-sumi-faint">送信すると、お寺と運営に申込が届きます。日程はこのあと相談できます。</span>
+            <span className="flex-1 text-xs text-sumi-faint">送信すると、お寺と運営に届きます。日時など細かいことは、このあと直接やりとりで決められます。</span>
             <button
               disabled={!canSubmit}
               onClick={() => { setDone(true); setCurrent(null); }}
@@ -189,53 +172,35 @@ export default function SearchPage() {
               <div>
                 <div className="text-xs text-sumi-faint">{current.temple}</div>
                 <div className="font-serif text-[17px]">{current.name}</div>
+                <div className="mt-0.5 text-[12.5px] text-sumi-soft">空き：{current.avail}</div>
               </div>
             </div>
 
-            <Field label="企画タイトル" required>
+            <Field label="やりたいこと（タイトル）" optional>
               <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例）朝の寺ヨガ教室" className="w-full rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base outline-none focus:border-matcha" />
             </Field>
 
-            <Field label="企画のジャンル" optional>
-              <div className="flex flex-wrap gap-2">
-                {FORM_CATS.map((c) => (
-                  <button key={c} onClick={() => setFormCat(c)} aria-pressed={formCat === c} className={`rounded-[18px] border-[1.5px] px-[14px] py-2 text-sm ${formCat === c ? "border-matcha bg-matcha-bg font-semibold text-matcha-ink" : "border-line bg-card text-sumi-soft hover:border-matcha"}`}>{c}</button>
-                ))}
-              </div>
+            <Field label="お寺へのメッセージ" required>
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="どんな企画をしたいか、希望の日時、だいたいの人数などを、ざっくり書いてください。細かいことは、このあとお寺と直接やりとりで決められます。" className="min-h-[120px] w-full resize-y rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base leading-relaxed outline-none focus:border-matcha" />
             </Field>
 
-            <Field label="希望日時" required>
-              <div className="flex flex-col gap-2">
-                {current.slots.map((s) => (
-                  <button key={s} onClick={() => setSlotSel(s)} aria-pressed={slotSel === s} className={`flex items-center gap-[11px] rounded-[11px] border-[1.5px] px-[14px] py-3 text-[15px] tabular ${slotSel === s ? "border-shu bg-shu-bg font-semibold" : "border-line bg-card hover:border-matcha"}`}>
-                    <span className={`relative h-5 w-5 flex-none rounded-full border-2 ${slotSel === s ? "border-shu after:absolute after:inset-[3px] after:rounded-full after:bg-shu" : "border-line"}`} />
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </Field>
-
-            <Field label="想定人数" optional>
-              <Stepper value={headcount} onChange={setHeadcount} unit="名ほど" />
-            </Field>
-
-            <Field label="企画内容" required>
-              <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="どんな催しか、音量や火気の有無、準備・片付けの流れなどを書くと、お寺が判断しやすくなります。" className="min-h-[88px] w-full resize-y rounded-[10px] border-[1.5px] border-line bg-card px-[13px] py-3 text-base leading-relaxed outline-none focus:border-matcha" />
-            </Field>
+            <div className="rounded-[11px] bg-matcha-bg px-4 py-3 text-[13.5px] leading-relaxed text-matcha-ink">
+              💬 このあとのやりとりは、お寺と直接おこないます。<b>運営も内容を確認でき、トラブル時に対応します</b>のでご安心ください。
+            </div>
           </>
         )}
       </SlideOver>
 
       {/* success */}
-      {done && current === null && title !== "" && (
+      {done && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-washi/80 p-[22px] backdrop-blur-sm">
           <div className="max-w-[440px] rounded-[18px] border border-line-soft bg-card p-9 text-center shadow-lg">
             <div className="mx-auto mb-[18px] grid h-[74px] w-[74px] place-items-center rounded-full bg-matcha text-[38px] text-on-accent">✓</div>
             <h2 className="mb-2.5 font-serif text-[23px]">申込を送信しました</h2>
             <p className="mb-[22px] text-[15px] leading-relaxed text-sumi-soft">
-              お寺と運営に申込が届きました。お寺からの返信や日程の相談は、マイページの「相談スレッド」で続けられます。
+              お寺と運営に申込が届きました。ここからは<b className="text-sumi">お寺と直接やりとり</b>で、日時や詳しいことを決められます。困ったときは運営が対応します。
             </p>
-            <button onClick={() => { setDone(false); setTitle(""); }} className="w-full rounded-xl bg-gradient-to-br from-shu to-shu-ink px-[26px] py-3 text-base font-semibold text-on-shu">一覧に戻る</button>
+            <button onClick={() => { setDone(false); setTitle(""); setMessage(""); }} className="w-full rounded-xl bg-gradient-to-br from-shu to-shu-ink px-[26px] py-3 text-base font-semibold text-on-shu">一覧に戻る</button>
           </div>
         </div>
       )}
