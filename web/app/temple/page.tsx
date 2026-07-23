@@ -108,12 +108,12 @@ export default function TempleDashboard() {
               2026年7月15日（火）・新しい申込が <b>{newCount}件</b> 届いています
             </div>
           </div>
-          <button
+          <a
+            href="/temple/new"
             className="inline-flex items-center gap-2.5 rounded-[13px] bg-gradient-to-br from-shu to-shu-ink px-6 py-[15px] text-[17px] font-semibold tracking-wide text-on-shu shadow-lg transition hover:-translate-y-px hover:brightness-105"
-            onClick={() => toast("掲載フォームへ進みます（プロトタイプ）")}
           >
             <span className="-mt-0.5 text-[22px] leading-none">＋</span>新しい空き枠を掲載する
-          </button>
+          </a>
         </div>
 
         {/* stat tiles */}
